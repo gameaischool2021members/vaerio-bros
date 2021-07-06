@@ -1,0 +1,148 @@
+// Serve Level Service
+{
+    "levelRequest":
+    {
+        "requestId":STRING,
+        "playerId":STRING,
+        "telemetry":{ // Empty for a new player
+            "latentVector":[ N dimenstional vector ],
+            "levelRepresentation":[
+                S x level slice representations of the form:
+                [ H x W array of INTs represetning block types ],
+                ...
+            ],
+            "markedUplayable": BOOL,
+            "endedEarly": BOOL,
+            "surveyResults":{
+                "enjoyment": INT,
+                "desiredNovelty": INT
+            }
+            ...
+        }
+    },
+
+    "levelResponse":
+    {
+        "requestId":STRING,
+        "latentVector":[ N dimenstional vector ],
+        "experimentName":STRING,
+        "levelRepresentation":[
+            S x level slice representations of the form:
+            [ H x W array of INTs represetning block types ],
+            ...
+        ]
+    }
+}
+
+
+//Player Model Service
+{
+    "playerPreferencesRequest":
+    {
+        "requestId":STRING,
+        "experimentName":STRING,
+        "playerId":STRING,
+        "telemetry":{
+            "latentVector":[ N dimenstional vector ],
+            "levelRepresentation":[
+                S x level slice representations of the form:
+                [ H x W array of INTs represetning block types ],
+                ...
+            ],
+            "markedUplayable": BOOL,
+            "endedEarly": BOOL,
+            "surveyResults":{
+                "enjoyment": INT,
+                "desiredNovelty": INT
+            }
+            ...
+        }
+    },
+
+    "playerPreferencesResponse":
+    {
+        "requestId":STRING,
+        "experimentName":STRING,
+        "playerId":STRING,
+        "playerPreferences":{
+            "latentVector":[ N dimenstional vector ],
+            "levelRepresentation":[
+                S x level slice representations of the form:
+                [ H x W array of INTs represetning block types ],
+                ...
+            ],
+            "enjoyment":FLOAT,
+            "desiredNovelty":FLOAT
+    }
+}
+
+
+// Level Slice Generator
+{
+    "levelSliceRequest":
+    {
+        "requestId":STRING,
+        "experimentName":STRING,
+        "modelName":STRING,
+        "latentVector":[ N dimenstional vector ]
+    },
+
+    "levelSliceReResponse":
+    {
+        "requestId":STRING,
+        "experimentName":STRING,
+        "modelName":STRING,
+        "latentVector":[ N dimenstional vector ],
+        "levelSliceRepresentation":[ H x W array of INTs represetning block types ],
+    }
+}
+
+
+// Playthrough Simulator
+{
+    "playthroughSimulatorRequest":
+    {
+        "requestId":STRING,
+        "experimentName":STRING,
+        "levelRepresentation":[
+            S x level slice representations of the form:
+            [ H x W array of INTs represetning block types ],
+            ...
+        ]
+    },
+
+    "levelSliceResponse":
+    {
+        "requestId":STRING,
+        "experimentName":STRING,
+        "levelRepresentation":[
+            S x level slice representations of the form:
+            [ H x W array of INTs represetning block types ],
+            ...
+        ],
+        "playthroughTelemetry":{
+            "didComplete":BOOL,
+            "timeTaken":FLOAT #in seconds,
+            "timeSpentInEachSlice":[
+                FLOAT, 
+                FLOAT, 
+                ...
+            ]   
+        }
+    }
+}
+
+// block types for the level representation ( as per https://github.com/TheHedgeify/DagstuhlGAN/tree/master/imgs)
+"blockTypes":{
+    0:"stone",
+    1:"breakableStone",
+    2:"empty",
+    3:"questionBlock",
+    4:"usedQuestionBlock",
+    5:"galoomba",
+    6:"pipeTopLeft",
+    7:"pipeTopRight",
+    8:"pipeLeft",
+    9:"pipeRight",
+    10:"coin"
+}
