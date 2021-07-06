@@ -49,7 +49,7 @@
                 [ H x W array of INTs represetning block types ],
                 ...
             ],
-            "markedUplayable": BOOL,
+            "markedUnplayable": BOOL,
             "endedEarly": BOOL,
             "surveyResults":{
                 "enjoyment": INT,
@@ -87,7 +87,7 @@
         "latentVector":[ N dimenstional vector ]
     },
 
-    "levelSliceReResponse":
+    "levelSliceResponse":
     {
         "requestId":STRING,
         "experimentName":STRING,
