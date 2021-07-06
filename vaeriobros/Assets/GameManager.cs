@@ -48,9 +48,13 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager singleton;
     private ProcLevel procLevel;
+    [SerializeField] FollowCam followCam;
     [SerializeField] ProcLevel procLevelPrefab;
 
+    public static float BottomHeight {get; private set;}
+
     [SerializeField] FeedbackPanel feedbackPanel;
+
     private GameState state;
 
     void Awake()
@@ -73,6 +77,7 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         OnRestartButtonClicked();
+        BottomHeight = -5f;
     }
 
     IEnumerator RunRestartGame()
@@ -80,6 +85,7 @@ public class GameManager : MonoBehaviour
         state = GameState.Loading;
         // clear any existing level
         Time.timeScale = 0;
+        followCam.Target = null;
         if (procLevel != null)
         {
             procLevel.DestroyLevel();
@@ -125,6 +131,7 @@ public class GameManager : MonoBehaviour
         if (player != null)
         {
             player.OnDeath += this.OnPlayerDeath;
+            followCam.Target = player.transform;
         }
         // recurse down heirarchy
         for (int i = 0; i < trans.childCount; i++)
@@ -146,6 +153,10 @@ public class GameManager : MonoBehaviour
     public void OnPlayerDeath()
     {
         Debug.Log("PLAYER DEAD");
+        if (state == GameState.Playing)
+        {
+            ProcessGameEnd();
+        }
     }
     #endregion
 
@@ -172,14 +183,17 @@ public class GameManager : MonoBehaviour
         //var json = JsonConvert.SerializeObject(dict);
         Debug.Log(json);
 
-
-        HttpWebRequest request = (HttpWebRequest)WebRequest.Create("https://mariovae.herokuapp.com/level");
+        HttpWebRequest request =  (HttpWebRequest)WebRequest.Create("https://mariovae.herokuapp.com/level");
+        request.Method = "GET";
+        
+        /*HttpWebRequest request = (HttpWebRequest)WebRequest.Create("https://mariovae.herokuapp.com/level");
         request.Method = "POST";
         request.ContentType = "application/json";
         using (var writer = new StreamWriter(request.GetRequestStream()))
         {
             writer.Write(json);
-        }
+        }*/
+
         Debug.Log("SENT!");
 
         var chunks = new List<Chunk>();

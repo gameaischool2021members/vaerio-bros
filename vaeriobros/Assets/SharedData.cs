@@ -7,8 +7,8 @@ public static class SharedData
 
     public static float runSpeed = 5;
     public static float acceleration = 10;
-    public static float jumpPower = 10;
-    public static float bouncePower = 4;
+    public static float jumpPower = 13;
+    public static float bouncePower = 6;
 
 
     /// <summary>

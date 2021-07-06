@@ -43,5 +43,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 43f936599ab710e4fa9a11a11210d1aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  followCam: {fileID: 0}
   procLevelPrefab: {fileID: 5597746525961470980, guid: 3f35ae2f82c195949bc4df97d4ef7741, type: 3}
   feedbackPanel: {fileID: 0}

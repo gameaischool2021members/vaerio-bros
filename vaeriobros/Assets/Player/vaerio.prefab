@@ -118,10 +118,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 40859db5b1038f34d9687d23e0dc01a8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  runSpeed: 3
-  acceleration: 10
-  jumpPower: 10
-  bouncePower: 4
+  floorCheckLayers:
+    serializedVersion: 2
+    m_Bits: 128
 --- !u!70 &1358153841787563337
 CapsuleCollider2D:
   m_ObjectHideFlags: 0

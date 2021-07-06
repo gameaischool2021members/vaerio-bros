@@ -34,7 +34,7 @@ public class ProcLevel : MonoBehaviour
 
     public void Generate(List<Chunk> chunks)
     {
-        int startX = 5;
+        int startX = 14;
         // add starting padding
         for (int i = 0; i < startX; i++)
         {

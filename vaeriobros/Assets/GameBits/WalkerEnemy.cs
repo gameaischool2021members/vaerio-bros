@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,7 +7,7 @@ public class WalkerEnemy : MonoBehaviour
 {
     [SerializeField] Vector2 walkDir = Vector2.left;
     [SerializeField] float walkSpeed = 2;
-    [SerializeField] float sensorDist = 0.51f;
+    [SerializeField] float sensorDist = 0.46f;
     [SerializeField] LayerMask solidCheckLayers;
 
     Rigidbody2D thisRigidbody;
@@ -35,5 +36,10 @@ public class WalkerEnemy : MonoBehaviour
         var vel = thisRigidbody.velocity;
         vel.x = walkDir.x * walkSpeed;
         thisRigidbody.velocity = vel;
+    }
+
+    internal void Squished()
+    {
+        Destroy(gameObject);
     }
 }
