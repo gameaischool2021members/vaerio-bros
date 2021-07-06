@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
+using UnityEngine.Networking;
 
 class VAECoordConverter : JsonConverter<VAECoord>
 {
@@ -93,8 +94,20 @@ public class GameManager : MonoBehaviour
         // create a new level
         procLevel = Instantiate<ProcLevel>(procLevelPrefab, this.transform);
         // receive level description
-        var chunks = FetchSampleLevel();
+        var json = CreateJsonRequest();
+        var chunks = new List<Chunk>();
+        using (UnityWebRequest request = UnityWebRequest.Get("https://mariovae.herokuapp.com/level"))
+        {
+            yield return request.SendWebRequest();
+            Debug.Log(request.result);
+            if(request.result == UnityWebRequest.Result.Success)
+            {
+                chunks = ParseWebResponse(request);
+            }
+        }
         //var chunks = new List<Chunk>();
+        // it used to be so simple...
+        // chunks = FetchSampleLevel();
         // generate map
         procLevel.Generate(chunks);
         // link objects in level
@@ -165,6 +178,43 @@ public class GameManager : MonoBehaviour
         StartCoroutine(RunRestartGame());
         feedbackPanel.ToggleVisible(false);
     }
+
+    #region WEBGL_TEST_NETWORKING
+    private string CreateJsonRequest()
+    {
+        var dict = new Dictionary<string, object>();
+        var fs = new List<List<float>>() {
+            new List<float>() { -6.28f, 6.28f },new List<float>() { 6.28f, -6.28f } };
+        dict["experimentName"] = "unity_test";
+        dict["zs"] = fs;
+        // {"zs":[[0.0,0.0],[1.0,1.0]]}
+        return JsonConvert.SerializeObject(dict);
+    }
+
+    private List<Chunk> ParseWebResponse(UnityWebRequest request)
+    {
+        var jsonResponse = request.downloadHandler.text;
+        var chunks = new List<Chunk>();
+
+        var ls = JsonConvert.DeserializeObject<List<List<List<int>>>>(jsonResponse);
+        foreach (var l in ls)
+        {
+            //make chunk
+            var chunk = new Chunk();
+            chunk.sizeY = l.Count;
+            chunk.sizeX = l.Count;
+            foreach (var row in l)
+            {
+                foreach (var item in row)
+                {
+                    chunk.blocks.Add((BlockType)item);
+                }
+            }
+            chunks.Add(chunk);
+        }
+        return chunks;
+    }
+    #endregion
 
     private List<Chunk> FetchSampleLevel()
     {
