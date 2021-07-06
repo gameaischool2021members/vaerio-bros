@@ -76,6 +76,7 @@ public class GameManager : MonoBehaviour
         var dict = new Dictionary<string, object>();
         var fs = new List<List<float>>() {
             new List<float>() { -6.28f, 6.28f },new List<float>() { 6.28f, -6.28f } };
+        dict["experimentName"] = "unity_test";
         dict["zs"] = fs;
         // {"zs":[[0.0,0.0],[1.0,1.0]]}
         var json = JsonConvert.SerializeObject(dict);

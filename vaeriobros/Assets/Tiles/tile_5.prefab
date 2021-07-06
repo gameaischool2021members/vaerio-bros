@@ -12,7 +12,8 @@ GameObject:
   - component: {fileID: 3837255913728719562}
   - component: {fileID: 3837255913728719557}
   - component: {fileID: 3837255913728719556}
-  m_Layer: 0
+  - component: {fileID: 2017456612327432435}
+  m_Layer: 6
   m_Name: tile_5
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -102,7 +103,7 @@ Rigidbody2D:
   m_GravityScale: 1
   m_Material: {fileID: 0}
   m_Interpolate: 0
-  m_SleepingMode: 1
+  m_SleepingMode: 0
   m_CollisionDetection: 0
   m_Constraints: 0
 --- !u!58 &3837255913728719556
@@ -120,4 +121,22 @@ CircleCollider2D:
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
-  m_Radius: 0.5
+  m_Radius: 0.45
+--- !u!114 &2017456612327432435
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3837255913728719558}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1c96b010f4817f42884c022bd6d773c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  walkDir: {x: -1, y: 0}
+  walkSpeed: 2
+  sensorDist: 0.51
+  solidCheckLayers:
+    serializedVersion: 2
+    m_Bits: 192
