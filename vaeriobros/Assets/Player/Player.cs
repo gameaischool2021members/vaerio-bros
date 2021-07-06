@@ -10,7 +10,7 @@ public class Player : MonoBehaviour
 
     Rigidbody2D thisRigidbody;
 
-    [SerializeField] float runSpeed = 3;
+    [SerializeField] float runSpeed = 5;
     [SerializeField] float acceleration = 10;
     [SerializeField] float jumpPower = 10;
     [SerializeField] float bouncePower = 4;

@@ -1,11 +1,10 @@
+using System;
+using System.IO;
 using System.Net;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using System;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
 
 class VAECoordConverter : JsonConverter<VAECoord>
 {
@@ -38,10 +37,21 @@ public class VAECoord
     }
 }
 
+public enum GameState
+{
+    Loading,
+    Playing,
+    Finished
+}
+
 public class GameManager : MonoBehaviour
 {
     public static GameManager singleton;
-    public ProcLevel procLevel;
+    private ProcLevel procLevel;
+    [SerializeField] ProcLevel procLevelPrefab;
+
+    [SerializeField] TestResetButton resetButton;
+    private GameState state;
 
     private void Awake()
     {
@@ -53,7 +63,7 @@ public class GameManager : MonoBehaviour
 
     private void OnDestroy()
     {
-        if(singleton == this)
+        if (singleton == this)
         {
             singleton = null;
         }
@@ -62,33 +72,49 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        DoIt();
+        OnRestartButtonClicked();
     }
 
-    // Update is called once per frame
-    void Update()
+    IEnumerator RunRestartGame()
     {
-
-    }
-
-
-    void DoIt()
-    {
+        state = GameState.Loading;
+        // clear any existing level
+        Time.timeScale = 0;
+        if (procLevel != null)
+        {
+            procLevel.DestroyLevel();
+        }
+        // create a new level
+        procLevel = Instantiate<ProcLevel>(procLevelPrefab, this.transform);
         // receive level description
         var chunks = FetchSampleLevel();
         //var chunks = new List<Chunk>();
         // generate map
-
         procLevel.Generate(chunks);
         // link objects in level
         RecurseLinkObjects(procLevel.transform);
+        yield return new WaitForEndOfFrame();
         // launch game
+        ProcessGameStart();
+    }
 
-        // wait for game over signal
+    void ProcessGameStart()
+    {
+        Time.timeScale = 1;
+        state = GameState.Playing;
+    }
+
+    void ProcessGameEnd()
+    {
+        Time.timeScale = 0;
+        state = GameState.Finished;
+        // SHOW SURVEY HERE
+        resetButton.ToggleVisibility(true);
     }
 
     void RecurseLinkObjects(Transform trans)
     {
+        // link components
         var exitFlag = trans.GetComponent<ExitFlag>();
         if (exitFlag != null)
         {
@@ -99,9 +125,8 @@ public class GameManager : MonoBehaviour
         {
             player.OnDeath += this.OnPlayerDeath;
         }
-
-
-        for (int i=0;i< trans.childCount; i++)
+        // recurse down heirarchy
+        for (int i = 0; i < trans.childCount; i++)
         {
             RecurseLinkObjects(trans.GetChild(i));
         }
@@ -111,6 +136,10 @@ public class GameManager : MonoBehaviour
     public void OnPlayerReachedExit()
     {
         Debug.Log("PLAYER REACHED EXIT");
+        if (state == GameState.Playing)
+        {
+            ProcessGameEnd();
+        }
     }
 
     public void OnPlayerDeath()
@@ -118,6 +147,12 @@ public class GameManager : MonoBehaviour
         Debug.Log("PLAYER DEAD");
     }
     #endregion
+
+    public void OnRestartButtonClicked()
+    {
+        StartCoroutine(RunRestartGame());
+        resetButton.ToggleVisibility(false);
+    }
 
     private List<Chunk> FetchSampleLevel()
     {
@@ -169,7 +204,7 @@ public class GameManager : MonoBehaviour
                 chunks.Add(chunk);
             }
         }
-        
+
 
         // parse response
 

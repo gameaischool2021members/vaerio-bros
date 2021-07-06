@@ -32,18 +32,6 @@ public class ProcLevel : MonoBehaviour
     [SerializeField] GameObject exitPrefab;
     [SerializeField] List<GameObject> prefabs;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
     public void Generate(List<Chunk> chunks)
     {
         int startX = 5;
@@ -80,6 +68,20 @@ public class ProcLevel : MonoBehaviour
             
         }
         InstanceExit(endX + 3, 1);
+    }
+
+    internal void DestroyLevel()
+    {
+        RecurseRemoveObjects(transform);
+    }
+
+    void RecurseRemoveObjects(Transform trans)
+    {
+        Destroy(trans.gameObject);
+        for(int i = 0; i < trans.childCount; i++)
+        {
+            RecurseRemoveObjects(trans.GetChild(i));
+        }
     }
 
     private void InstanceExit(int x, int y)
