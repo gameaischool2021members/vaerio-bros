@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 7946311959411862092}
   - component: {fileID: 2633412134880623504}
   - component: {fileID: 1358153841787563337}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: vaerio
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -121,6 +121,7 @@ MonoBehaviour:
   runSpeed: 3
   acceleration: 10
   jumpPower: 10
+  bouncePower: 4
 --- !u!70 &1358153841787563337
 CapsuleCollider2D:
   m_ObjectHideFlags: 0

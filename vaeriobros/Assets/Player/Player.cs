@@ -1,9 +1,13 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class Player : MonoBehaviour
 {
+    public event Action OnDeath;
+
+
     Rigidbody2D thisRigidbody;
 
     [SerializeField] float runSpeed = 3;

@@ -40,7 +40,24 @@ public class VAECoord
 
 public class GameManager : MonoBehaviour
 {
+    public static GameManager singleton;
     public ProcLevel procLevel;
+
+    private void Awake()
+    {
+        if (singleton != null)
+        {
+            singleton = this;
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if(singleton == this)
+        {
+            singleton = null;
+        }
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -58,14 +75,49 @@ public class GameManager : MonoBehaviour
     void DoIt()
     {
         // receive level description
-        List<Chunk> chunks = FetchSampleLevel();
+        var chunks = FetchSampleLevel();
+        //var chunks = new List<Chunk>();
         // generate map
-        procLevel.Generate(chunks);
 
+        procLevel.Generate(chunks);
+        // link objects in level
+        RecurseLinkObjects(procLevel.transform);
         // launch game
 
         // wait for game over signal
     }
+
+    void RecurseLinkObjects(Transform trans)
+    {
+        var exitFlag = trans.GetComponent<ExitFlag>();
+        if (exitFlag != null)
+        {
+            exitFlag.OnPlayerReachedExit += this.OnPlayerReachedExit;
+        }
+        var player = trans.GetComponent<Player>();
+        if (player != null)
+        {
+            player.OnDeath += this.OnPlayerDeath;
+        }
+
+
+        for (int i=0;i< trans.childCount; i++)
+        {
+            RecurseLinkObjects(trans.GetChild(i));
+        }
+    }
+
+    #region EVENT_CALLBACKS
+    public void OnPlayerReachedExit()
+    {
+        Debug.Log("PLAYER REACHED EXIT");
+    }
+
+    public void OnPlayerDeath()
+    {
+        Debug.Log("PLAYER DEAD");
+    }
+    #endregion
 
     private List<Chunk> FetchSampleLevel()
     {
