@@ -50,18 +50,18 @@ public class GameManager : MonoBehaviour
     private ProcLevel procLevel;
     [SerializeField] ProcLevel procLevelPrefab;
 
-    [SerializeField] TestResetButton resetButton;
+    [SerializeField] FeedbackPanel feedbackPanel;
     private GameState state;
 
-    private void Awake()
+    void Awake()
     {
-        if (singleton != null)
+        if (singleton == null)
         {
             singleton = this;
         }
     }
 
-    private void OnDestroy()
+    void OnDestroy()
     {
         if (singleton == this)
         {
@@ -109,7 +109,8 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 0;
         state = GameState.Finished;
         // SHOW SURVEY HERE
-        resetButton.ToggleVisibility(true);
+        feedbackPanel.ResetFields();
+        feedbackPanel.ToggleVisible(true);
     }
 
     void RecurseLinkObjects(Transform trans)
@@ -151,7 +152,7 @@ public class GameManager : MonoBehaviour
     public void OnRestartButtonClicked()
     {
         StartCoroutine(RunRestartGame());
-        resetButton.ToggleVisibility(false);
+        feedbackPanel.ToggleVisible(false);
     }
 
     private List<Chunk> FetchSampleLevel()

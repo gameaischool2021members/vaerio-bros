@@ -44,4 +44,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   procLevelPrefab: {fileID: 5597746525961470980, guid: 3f35ae2f82c195949bc4df97d4ef7741, type: 3}
-  resetButton: {fileID: 0}
+  feedbackPanel: {fileID: 0}

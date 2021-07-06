@@ -10,10 +10,7 @@ public class Player : MonoBehaviour
 
     Rigidbody2D thisRigidbody;
 
-    [SerializeField] float runSpeed = 5;
-    [SerializeField] float acceleration = 10;
-    [SerializeField] float jumpPower = 10;
-    [SerializeField] float bouncePower = 4;
+    
 
     float walkInput;
     float jumpInput;
@@ -34,17 +31,10 @@ public class Player : MonoBehaviour
 
     void FixedUpdate()
     {
-        // update desired velocity
-        var desiredVelX = walkInput * runSpeed;
-
-        // assign to actual vector
         var currentVel = thisRigidbody.velocity;
-        currentVel.x = Mathf.MoveTowards(currentVel.x, desiredVelX, acceleration * Time.deltaTime);
-        bool canJump = true;
-        if (canJump && jumpInput > 0)
-        {
-            currentVel.y = jumpPower;
-        }
+
+        currentVel = SharedData.ComputePlayerVelocity(currentVel, walkInput, jumpInput, Time.deltaTime);
+
         thisRigidbody.velocity = currentVel;
     }
 }
