@@ -56,7 +56,7 @@ class PlayerFeedbackTable:
         experiment_name: str,
         model_name: str,
         latent_vectors: List[List[List[float]]],
-        latlevel_representation: List[List[List[List[float]]]],
+        level_representation: List[List[List[List[float]]]],
         marked_unplayable: bool,
         ended_early: bool,
         enjoyment: float,
@@ -64,7 +64,7 @@ class PlayerFeedbackTable:
         desired_novelty: float):
 
         query = f"INSERT INTO {self.table_name} (timestamp, player_id, experiment_name, model_name, latent_vectors, level_representation, marked_unplayable, ended_early, enjoyment, rated_novelty, desired_novelty) VALUES "
-        query += f" ({timestamp}, '{player_id}', '{experiment_name}', '{model_name}', '{self.ParseLatentVectorsArray(latent_vectors)}', '{self.ParseLevelRepresentationArray(latlevel_representation)}', '{marked_unplayable}', '{ended_early}', '{enjoyment}', '{rated_novelty}', '{desired_novelty}');"
+        query += f" ({timestamp}, '{player_id}', '{experiment_name}', '{model_name}', '{self.ParseLatentVectorsArray(latent_vectors)}', '{self.ParseLevelRepresentationArray(level_representation)}', '{marked_unplayable}', '{ended_early}', '{enjoyment}', '{rated_novelty}', '{desired_novelty}');"
         return query
         
 
@@ -75,7 +75,7 @@ class PlayerFeedbackTable:
         experiment_name: str,
         model_name: str,
         latent_vectors: List[List[List[float]]],
-        latlevel_representation: List[List[List[List[float]]]],
+        level_representation: List[List[List[List[float]]]],
         marked_unplayable: bool,
         ended_early: bool,
         enjoyment: float,
@@ -88,7 +88,7 @@ class PlayerFeedbackTable:
         experiment_name,
         model_name,
         latent_vectors,
-        latlevel_representation,
+        level_representation,
         marked_unplayable,
         ended_early,
         enjoyment,
@@ -109,3 +109,41 @@ class PlayerFeedbackTable:
         c.execute(query)
         queries = c.fetchall()
         return queries
+    
+
+    
+    def FeedbackItemResponseToJson(self, feedback_items):
+        feedback_item_json = {"feedabackItems":[]}
+
+        for item in feedback_items:
+            item_json = {}
+
+            item_json["id"] = item[0]
+            item_json["timestamp"] = item[1]
+            item_json["player_id"] = item[2]
+            item_json["experiment_name"] = item[3]
+            item_json["model_name"] = item[4]
+            item_json["latent_vectors"] = item[5]
+            item_json["level_representation"] = item[6]
+            item_json["marked_unplayable"] = item[7]
+            item_json["ended_early"] = item[8]
+            item_json["enjoyment"] = item[9]
+            item_json["rated_novelty"] = item[10]
+            item_json["desired_novelty"] = item[11]
+
+            feedback_item_json["feedabackItems"].append(item_json)
+        
+        return feedback_item_json
+
+
+    def GetAllItems(self):
+        """
+        Returns all feedback items.
+        """
+        query = (
+            f"SELECT * FROM {self.table_name};"
+        )
+        c = self.db.cursor()
+        c.execute(query)
+        queries = c.fetchall()
+        return self.FeedbackItemResponseToJson(queries)

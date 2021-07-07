@@ -146,7 +146,6 @@ def GetExperimentName():
     return level_generator.name
 
 
-
 @app.route("/")
 def landing():
     return f"""
@@ -160,6 +159,14 @@ def landing():
     <h4> Response Format</h4>
     <pre>{RESPONSE_FORMAT}</pre>
     """
+
+
+@app.route("/feedback")
+def feedback():
+    db = psycopg2.connect(db_url)
+    feedback_table_db = PlayerFeedbackTable(db)
+    feedbackItems = feedback_table_db.GetAllItems()
+    return feedbackItems
 
 
 @app.route("/level", methods=["GET", "POST"])
