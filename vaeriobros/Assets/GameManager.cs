@@ -65,8 +65,8 @@ public class GameManager : MonoBehaviour
         if (singleton == null)
         {
             singleton = this;
+            state = GameState.Finished;
         }
-        state = GameState.Finished;
     }
 
     void OnDestroy()
@@ -82,7 +82,7 @@ public class GameManager : MonoBehaviour
     {
         levelProviderFields["playerId"] = Guid.NewGuid();
         levelProviderFields["telemetry"] = new object();
-        OnRestartButtonClicked();
+        Restart();
         BottomHeight = -5f;
     }
 
@@ -128,29 +128,36 @@ public class GameManager : MonoBehaviour
 
         Time.timeScale = 0;
         state = GameState.Finished;
-        //Provide data here
-        levelProviderFields["playerId"] = Guid.NewGuid();
-        var previousResponse = (LevelProviderResponse)DataManager.Instance.IntermediateResponse;
-        levelProviderFields["telemetry"] = new TelemetryData {
-            latentVectors = previousResponse.LatentVectors,
-            levelRepresentation = previousResponse.LevelRepresentation,
-            //experimentName = previousResponse.ExperimentName,
-            experimentName = "Hey Daniel, Did it work?",
-            modelName = "mariovae_z_dim_2",
-            markedUnplayable = false,
-            endedEarly = false,
-            surveyResults = new SurveyResults
-            {
-                enjoyment = 0.5f,
-                ratedNovelty = 0.5f,
-                desiredNovelty = 0.8f
-            }
-        };
+        
         // SHOW SURVEY HERE
         feedbackPanel.ResetFields();
         feedbackPanel.ToggleVisible(true);
     }
 
+    internal void SendFinishedSurvey(SurveyResults results, bool _unplayable, bool _endedEarly)
+    {
+        //Provide data here
+        var previousResponse = (LevelProviderResponse)DataManager.Instance.IntermediateResponse;
+        levelProviderFields["telemetry"] = new TelemetryData
+        {
+            latentVectors = previousResponse.LatentVectors,
+            levelRepresentation = previousResponse.LevelRepresentation,
+            experimentName = previousResponse.ExperimentName,
+            //experimentName = "Hey Daniel, Did it work?",
+            modelName = "mariovae_z_dim_2",
+            markedUnplayable = _unplayable,
+            endedEarly = _endedEarly,
+            surveyResults = results
+        };
+        Restart();
+    }
+
+
+    private void Restart()
+    {
+        feedbackPanel.ToggleVisible(false);
+        StartCoroutine(RunRestartGame());
+    }
     public void SetEnjoyment(int sValue)
     {
     }
@@ -199,12 +206,6 @@ public class GameManager : MonoBehaviour
         }
     }
     #endregion
-
-    public void OnRestartButtonClicked()
-    {
-        StartCoroutine(RunRestartGame());
-        feedbackPanel.ToggleVisible(false);
-    }
 
     #region WEBGL_TEST_NETWORKING
     private string CreateJsonRequest()

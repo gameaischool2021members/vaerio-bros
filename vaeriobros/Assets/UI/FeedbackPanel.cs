@@ -2,11 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-
+using Assets.Model;
 public class FeedbackPanel : MonoBehaviour
 {
     [SerializeField] Slider enjoymentSlider;
     [SerializeField] Slider noveltySlider;
+    [SerializeField] Slider desiredSlider;
 
     void Start()
     {
@@ -20,8 +21,12 @@ public class FeedbackPanel : MonoBehaviour
 
     public void OnSubmitClicked()
     {
-        Debug.Log(GameManager.singleton);
-        GameManager.singleton.OnRestartButtonClicked();
+        SurveyResults results = new SurveyResults();
+        results.enjoyment = enjoymentSlider.value;
+        results.ratedNovelty = noveltySlider.value;
+        results.desiredNovelty = desiredSlider.value;
+
+        GameManager.singleton.SendFinishedSurvey(results, false, false);
     }
 
     internal void ResetFields()

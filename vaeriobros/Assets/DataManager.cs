@@ -32,7 +32,7 @@ public class DataManager : MonoBehaviour
             //make chunk
             var chunk = new Chunk();
             chunk.sizeY = l.Count;
-            chunk.sizeX = l.Count;
+            chunk.sizeX = l[0].Count;
             foreach (var row in l)
             {
                 foreach (var item in row)
