@@ -40,16 +40,19 @@ namespace Assets.DataLayer
         {
 
             // parse response
-            using UnityWebRequest www = UnityWebRequest.Get($"{Endpoint}/{path}");
-            www.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
-            www.SetRequestHeader("Content-Type", "application/json");
+            using (UnityWebRequest www = UnityWebRequest.Get($"{Endpoint}/{path}"))
+            {
+                www.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
+                www.SetRequestHeader("Content-Type", "application/json");
 
-            yield return www.SendWebRequest();
+                yield return www.SendWebRequest();
 
-            if (www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError)
-                Debug.Log(www.error);
-            else
-                responseHandler?.Invoke(JsonConvert.DeserializeObject<Tout>(www.downloadHandler.text));
+                if (www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError)
+                    Debug.Log(www.error);
+                else
+                    responseHandler?.Invoke(JsonConvert.DeserializeObject<Tout>(www.downloadHandler.text));
+            }
+
         }
 
         public IEnumerator PostObject<Tin, Tout>(Tin bodyObj, string path, Action<Tout> responseHandler = null)
@@ -57,36 +60,39 @@ namespace Assets.DataLayer
             var json = JsonConvert.SerializeObject(bodyObj);
             byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
             // parse response
-            using UnityWebRequest www = UnityWebRequest.Post($"{Endpoint}/{path}", json);
-            www.uploadHandler = (UploadHandler)new UploadHandlerRaw(bodyRaw);
-            www.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
-            www.SetRequestHeader("Content-Type", "application/json");
-
-            yield return www.SendWebRequest();
-
-            if (www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError)
+            using (UnityWebRequest www = UnityWebRequest.Post($"{Endpoint}/{path}", json))
             {
-                Debug.Log(www.error);
+                www.uploadHandler = (UploadHandler)new UploadHandlerRaw(bodyRaw);
+                www.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
+                www.SetRequestHeader("Content-Type", "application/json");
+
+                yield return www.SendWebRequest();
+
+                if (www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError)
+                {
+                    Debug.Log(www.error);
+                }
+                else
+                {
+                    //Debug.Log("Form upload complete!");
+
+                    //Debug.Log("POST successful!");
+                    //StringBuilder sb = new StringBuilder();
+                    //foreach (System.Collections.Generic.KeyValuePair<string, string> d in www.GetResponseHeaders())
+                    //{
+                    //    sb.Append(d.Key).Append(": \t[").Append(d.Value).Append("]\n");
+                    //}
+
+                    //// Print Headers
+                    //Debug.Log(sb.ToString());
+
+                    //// Print Body
+                    //Debug.Log(www.downloadHandler.text);
+                    responseHandler?.Invoke(JsonConvert.DeserializeObject<Tout>(www.downloadHandler.text));
+
+                }
             }
-            else
-            {
-                //Debug.Log("Form upload complete!");
 
-                //Debug.Log("POST successful!");
-                //StringBuilder sb = new StringBuilder();
-                //foreach (System.Collections.Generic.KeyValuePair<string, string> d in www.GetResponseHeaders())
-                //{
-                //    sb.Append(d.Key).Append(": \t[").Append(d.Value).Append("]\n");
-                //}
-
-                //// Print Headers
-                //Debug.Log(sb.ToString());
-
-                //// Print Body
-                //Debug.Log(www.downloadHandler.text);
-                responseHandler?.Invoke(JsonConvert.DeserializeObject<Tout>(www.downloadHandler.text));
-
-            }
         }
 
         public Tout PostObjects<Tin, Tmid, Tout>(IEnumerable<Tin> obj)
