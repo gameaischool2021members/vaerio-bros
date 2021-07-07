@@ -12,6 +12,7 @@ public class LevelScene : MonoBehaviour
     public float plumberXposition; // mario.x in the original
     public float plumberYposition;
     public float plumberXacceleration; // I think that ist mario.xa in the original
+    public float plumberYacceleration;
     public int plumberDamage = 0; // the damage(falling is counting as damage) that the plumber is getting (Why do we need to store this?)
 
     public LevelScene Clone()
@@ -20,6 +21,7 @@ public class LevelScene : MonoBehaviour
         clonedScene.plumberXposition = this.plumberXposition;
         clonedScene.plumberYposition = this.plumberYposition;
         clonedScene.plumberXacceleration = this.plumberXacceleration;
+        clonedScene.plumberYacceleration = this.plumberYacceleration;
         clonedScene.plumberDamage = this.plumberDamage;
         
         return clonedScene;
@@ -31,12 +33,25 @@ public class LevelScene : MonoBehaviour
     /// </summary>
     public void Tick(bool[] action)
     {
-        // TODO
         // teleport player to position
-        
-        Physics2D.Simulate(Time.fixedDeltaTime);
-        // read player back
+        StepGameManager stepGameManager = (StepGameManager)GameManager.singleton;
+        if (stepGameManager == null)
+        {
+            Debug.LogError("Wrong Game Manager");
+        }
+        Player plumber = stepGameManager.plumber;
+        plumber.thisRigidbody.position = new Vector3(plumberXposition, plumberYposition, plumber.transform.position.z);
+        plumber.thisRigidbody.velocity = new Vector2(plumberXacceleration, plumberYacceleration);
+        plumber.thisRigidbody.angularVelocity = 0;
+        Physics2D.SyncTransforms(); // TODO maybe move into SingleStep()
 
+        stepGameManager.SingleStep(action);
+
+        // read player back
+        this.plumberXposition = plumber.transform.position.x;
+        this.plumberYposition = plumber.transform.position.y;
+        this.plumberXacceleration = plumber.thisRigidbody.velocity.x;
+        this.plumberYacceleration = plumber.thisRigidbody.velocity.y;
     }
 
     /// <summary>

@@ -9,13 +9,13 @@ public class Player : MonoBehaviour
     CapsuleCollider2D playerCollider;
 
 
-    Rigidbody2D thisRigidbody;
+    public Rigidbody2D thisRigidbody;
     [SerializeField] LayerMask floorCheckLayers;
 
     private bool dead = false;
 
-    float walkInput;
-    float jumpInput;
+    public float walkInput;
+    public float jumpInput;
     private bool bounce;
 
     // Start is called before the first frame update
@@ -62,6 +62,17 @@ public class Player : MonoBehaviour
     }
 
     void FixedUpdate()
+    {
+        if (Physics2D.simulationMode == SimulationMode2D.FixedUpdate)
+        {
+            PhysiscsStep();
+        }
+    }
+
+    /// <summary>
+    /// do one physics step. This is outsourced since we need it for the A* simulation too.
+    /// </summary>
+    public void PhysiscsStep()
     {
         var currentVel = thisRigidbody.velocity;
 
