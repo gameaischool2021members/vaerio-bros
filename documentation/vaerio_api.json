@@ -2,19 +2,22 @@
 {
     "levelRequest":
     {
-        "requestId":STRING,
-        "playerId":STRING,
+        "requestId": STRING,
+        "playerId": STRING,
         "telemetry":{ // Empty for a new player
-            "latentVector":[ N dimenstional vector ],
-            "levelRepresentation":[
+            "latentVector": [ N dimenstional vector ],
+            "levelRepresentation": [
                 S x level slice representations of the form:
                 [ H x W array of INTs represetning block types ],
                 ...
             ],
+            "modelName": STRING,
+            "experimentName": STRING,
             "markedUplayable": BOOL,
             "endedEarly": BOOL,
             "surveyResults":{
                 "enjoyment": INT,
+                "ratedNovelty": INT,
                 "desiredNovelty": INT
             }
             ...
@@ -23,10 +26,11 @@
 
     "levelResponse":
     {
-        "requestId":STRING,
-        "latentVector":[ N dimenstional vector ],
-        "experimentName":STRING,
-        "levelRepresentation":[
+        "requestId": STRING,
+        "latentVector": [ N dimenstional vector ],
+        "modelName": STRING,
+        "experimentName": STRING,
+        "levelRepresentation": [
             S x level slice representations of the form:
             [ H x W array of INTs represetning block types ],
             ...
