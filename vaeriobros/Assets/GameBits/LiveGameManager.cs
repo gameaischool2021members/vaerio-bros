@@ -4,11 +4,12 @@ using UnityEngine;
 
 public class LiveGameManager : GameManager
 {
-
+    [SerializeField] EmergencyPanel emergencyPanel;
     protected override void ProcessGameStart()
     {
         Time.timeScale = 1;
         state = GameState.Playing;
+        emergencyPanel.ToggleVisible(true);
     }
 
     protected override void ProcessGameEnd(EndReason reason)
@@ -17,27 +18,13 @@ public class LiveGameManager : GameManager
         Time.timeScale = 0;
         state = GameState.Finished;
         // remember why we lost
-        endReason = reason;
-        Debug.Log("Finished, reason=" + endReason.ToString());
+        Debug.Log("Finished, reason=" + reason.ToString());
         // SHOW SURVEY HERE
         feedbackPanel.ResetFields();
-        var desc = ReasonToDescription(reason);
-        feedbackPanel.ToggleVisible(true,desc);
+        emergencyPanel.ToggleVisible(false);
+        feedbackPanel.ToggleVisible(true,reason);
+
     }
 
-    private string ReasonToDescription(EndReason reason)
-    {
-        switch (reason)
-        {
-            case EndReason.Win:
-                return "You Win!";
-            case EndReason.Death:
-                return "You Died!";
-            case EndReason.Unplayable:
-                return "Level is Unplayable.";
-            case EndReason.Boring:
-                return "Level is Boring.";
-        }
-        return "Uh... Oops?";
-    }
+    
 }

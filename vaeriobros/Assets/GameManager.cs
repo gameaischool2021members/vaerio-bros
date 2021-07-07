@@ -69,7 +69,6 @@ public abstract class GameManager : MonoBehaviour
     protected readonly Dictionary<string, object> levelProviderFields = new Dictionary<string, object>();
 
     public Player plumber;
-    protected EndReason endReason;
 
     void Awake()
     {
@@ -104,7 +103,6 @@ public abstract class GameManager : MonoBehaviour
             state = GameState.Loading;
             // clear any existing level
             Time.timeScale = 0;
-            endReason = EndReason.Death;
             followCam.Target = null;
             plumber = null;
             if (procLevel != null)
@@ -133,7 +131,7 @@ public abstract class GameManager : MonoBehaviour
     protected abstract void ProcessGameStart();
     protected abstract void ProcessGameEnd(EndReason reason);
 
-    internal void SendFinishedSurvey(SurveyResults results)
+    internal void SendFinishedSurvey(SurveyResults results,EndReason endReason)
     {
         // get unplayable status
         var unplayable = endReason == EndReason.Unplayable;
@@ -157,7 +155,7 @@ public abstract class GameManager : MonoBehaviour
 
     private void Restart()
     {
-        feedbackPanel.ToggleVisible(false, "");
+        feedbackPanel.ToggleVisible(false, EndReason.Death);
         StartCoroutine(RunRestartGame());
     }
 
