@@ -1,14 +1,10 @@
+using Assets.Model;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Chunk
-{
-    public int sizeX = 0;
-    public int sizeY = 0;
-    public List<BlockType> blocks = new List<BlockType>();
-}
+
 
 public enum BlockType
 {

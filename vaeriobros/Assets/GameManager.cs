@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
 using UnityEngine.Networking;
+using Assets.Model;
 
 class VAECoordConverter : JsonConverter<VAECoord>
 {
@@ -64,6 +65,7 @@ public class GameManager : MonoBehaviour
         {
             singleton = this;
         }
+        state = GameState.Finished;
     }
 
     void OnDestroy()
@@ -83,38 +85,45 @@ public class GameManager : MonoBehaviour
 
     IEnumerator RunRestartGame()
     {
-        state = GameState.Loading;
-        // clear any existing level
-        Time.timeScale = 0;
-        followCam.Target = null;
-        if (procLevel != null)
+        if(state == GameState.Finished)
         {
-            procLevel.DestroyLevel();
-        }
-        // create a new level
-        procLevel = Instantiate<ProcLevel>(procLevelPrefab, this.transform);
-        // receive level description
-        var json = CreateJsonRequest();
-        var chunks = new List<Chunk>();
-        using (UnityWebRequest request = UnityWebRequest.Get("https://mariovae.herokuapp.com/level"))
-        {
-            yield return request.SendWebRequest();
-            Debug.Log(request.result);
-            if(request.result == UnityWebRequest.Result.Success)
+            state = GameState.Loading;
+            // clear any existing level
+            Time.timeScale = 0;
+            followCam.Target = null;
+            if (procLevel != null)
             {
-                chunks = ParseWebResponse(request);
+                procLevel.DestroyLevel();
             }
+            // create a new level
+            procLevel = Instantiate<ProcLevel>(procLevelPrefab, this.transform);
+            // receive level description
+            //var json = CreateJsonRequest();
+            //var chunks = new List<Chunk>();
+            //using (UnityWebRequest request = UnityWebRequest.Get("https://mariovae.herokuapp.com/level"))
+            //{
+            //    yield return request.SendWebRequest();
+            //    Debug.Log(request.result);
+            //    if(request.result == UnityWebRequest.Result.Success)
+            //    {
+            //        chunks = ParseWebResponse(request);
+            //    }
+            //}
+            //var chunks = DataManager.Instance.ChunksGET();
+            yield return DataManager.Instance.ChunksGET_Coroutine();
+            var chunks = (List<Chunk>)DataManager.Instance.ResponseDynamic;
+            //var chunks = new List<Chunk>();
+            // it used to be so simple...
+            // chunks = FetchSampleLevel();
+            // generate map
+            procLevel.Generate(chunks);
+            // link objects in level
+            RecurseLinkObjects(procLevel.transform);
+            yield return new WaitForEndOfFrame();
+            // launch game
+            ProcessGameStart();
+
         }
-        //var chunks = new List<Chunk>();
-        // it used to be so simple...
-        // chunks = FetchSampleLevel();
-        // generate map
-        procLevel.Generate(chunks);
-        // link objects in level
-        RecurseLinkObjects(procLevel.transform);
-        yield return new WaitForEndOfFrame();
-        // launch game
-        ProcessGameStart();
     }
 
     void ProcessGameStart()
