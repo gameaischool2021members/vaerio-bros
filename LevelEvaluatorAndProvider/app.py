@@ -47,7 +47,7 @@ REQUEST_FORMAT = """{
             ],
             "modelName": STRING,
             "experimentName": STRING,
-            "markedUplayable": BOOL,
+            "markedUnplayable": BOOL,
             "endedEarly": BOOL,
             "surveyResults":{
                 "enjoyment": INT,
@@ -126,20 +126,21 @@ def IsLevelValid(request_data, proposed_level_data):
 
 
 def StoreTelemetryInDatabase(request_data):
-    db = psycopg2.connect(db_url)
-    feedback_table_db = PlayerFeedbackTable(db)
-    feedback_table_db.SaveFeedback(
-    time.time(),
-    request_data["playerId"],
-    request_data["telemetry"]["experimentName"],
-    request_data["telemetry"]["modelName"],
-    request_data["telemetry"]["latentVectors"],
-    request_data["telemetry"]["levelRepresentation"],
-    request_data["telemetry"]["markedUplayable"],
-    request_data["telemetry"]["endedEarly"],
-    request_data["telemetry"]["surveyResults"]["enjoyment"],
-    request_data["telemetry"]["surveyResults"]["ratedNovelty"],
-    request_data["telemetry"]["surveyResults"]["desiredNovelty"])
+    if("telemetry" in request_data and len(request_data["telemetry"].keys()) > 0):
+        db = psycopg2.connect(db_url)
+        feedback_table_db = PlayerFeedbackTable(db)
+        feedback_table_db.SaveFeedback(
+        time.time(),
+        request_data["playerId"],
+        request_data["telemetry"]["experimentName"],
+        request_data["telemetry"]["modelName"],
+        request_data["telemetry"]["latentVectors"],
+        request_data["telemetry"]["levelRepresentation"],
+        request_data["telemetry"]["markedUnplayable"],
+        request_data["telemetry"]["endedEarly"],
+        request_data["telemetry"]["surveyResults"]["enjoyment"],
+        request_data["telemetry"]["surveyResults"]["ratedNovelty"],
+        request_data["telemetry"]["surveyResults"]["desiredNovelty"])
 
 
 def GetExperimentName():
@@ -175,9 +176,10 @@ def level():
         data = request.args
     else:
         data_request = request.get_json()
-        print(data_request)
         if not isinstance(data_request, dict):
-            data = json.loads(request.get_json())
+            data = request.form.to_dict()
+            telemetry_string = '{ "telemetry":' +data["telemetry"].replace("'", "\"").replace("True", "true").replace("False", "false") + "}"
+            data["telemetry"] = json.loads(telemetry_string)["telemetry"]
         else:
             data = data_request
     

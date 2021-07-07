@@ -1,5 +1,6 @@
 import uuid
 import urllib.request
+from urllib import parse, request
 import json
 
 
@@ -15,7 +16,7 @@ if __name__ == "__main__":
             "levelRepresentation":test_level_data["levelRepresentation"],
             "modelName": "mariovae_z_dim_2",
             "experimentName": test_level_data["experimentName"],
-            "markedUplayable": False,
+            "markedUnplayable": False,
             "endedEarly": False,
             "surveyResults":{
                     "enjoyment": 0.5,
@@ -36,5 +37,12 @@ if __name__ == "__main__":
 
     with urllib.request.urlopen(req, data_bytes) as f:
         response_json = json.loads(f.read())
+
+    ### AS FORM DATA
+    # data = parse.urlencode(TEST_LEVEL_REQUEST_NO_TELEMETRY).encode()
+    # req =  request.Request(TEST_ENDPOINT, data=data) # this will make the method "POST"
+    # with request.urlopen(req) as f:
+    #     response_json = json.loads(f.read())
+
 
     print(response_json)
