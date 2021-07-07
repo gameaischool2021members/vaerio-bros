@@ -138,7 +138,6 @@ public abstract class GameManager : MonoBehaviour
         // get unplayable status
         var unplayable = endReason == EndReason.Unplayable;
         var boring = endReason == EndReason.Boring;
-        Debug.Log(unplayable+" "+boring);
         //Provide data here
         var previousResponse = (LevelProviderResponse)DataManager.Instance.IntermediateResponse;
         levelProviderFields["telemetry"] = new TelemetryData
@@ -187,7 +186,6 @@ public abstract class GameManager : MonoBehaviour
     #region EVENT_CALLBACKS
     public void OnPlayerReachedExit()
     {
-        Debug.Log("PLAYER REACHED EXIT");
         if (state == GameState.Playing)
         {
             ProcessGameEnd(EndReason.Win);
@@ -196,7 +194,6 @@ public abstract class GameManager : MonoBehaviour
 
     public void OnPlayerDeath()
     {
-        Debug.Log("PLAYER DEAD");
         if (state == GameState.Playing)
         {
             ProcessGameEnd(EndReason.Death);
