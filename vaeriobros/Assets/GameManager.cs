@@ -46,6 +46,14 @@ public enum GameState
     Finished
 }
 
+public enum EndReason
+{
+    Win,
+    Death,
+    Unplayable,
+    Boring
+}
+
 public abstract class GameManager : MonoBehaviour
 {
     public static GameManager singleton;
@@ -61,6 +69,7 @@ public abstract class GameManager : MonoBehaviour
     protected readonly Dictionary<string, object> levelProviderFields = new Dictionary<string, object>();
 
     public Player plumber;
+    protected EndReason endReason;
 
     void Awake()
     {
@@ -95,6 +104,7 @@ public abstract class GameManager : MonoBehaviour
             state = GameState.Loading;
             // clear any existing level
             Time.timeScale = 0;
+            endReason = EndReason.Death;
             followCam.Target = null;
             plumber = null;
             if (procLevel != null)
@@ -121,10 +131,14 @@ public abstract class GameManager : MonoBehaviour
     }
 
     protected abstract void ProcessGameStart();
-    protected abstract void ProcessGameEnd();
+    protected abstract void ProcessGameEnd(EndReason reason);
 
-    internal void SendFinishedSurvey(SurveyResults results, bool _unplayable, bool _endedEarly)
+    internal void SendFinishedSurvey(SurveyResults results)
     {
+        // get unplayable status
+        var unplayable = endReason == EndReason.Unplayable;
+        var boring = endReason == EndReason.Boring;
+        Debug.Log(unplayable+" "+boring);
         //Provide data here
         var previousResponse = (LevelProviderResponse)DataManager.Instance.IntermediateResponse;
         levelProviderFields["telemetry"] = new TelemetryData
@@ -134,8 +148,8 @@ public abstract class GameManager : MonoBehaviour
             experimentName = previousResponse.ExperimentName,
             //experimentName = "Hey Daniel, Did it work?",
             modelName = "mariovae_z_dim_2",
-            markedUnplayable = _unplayable,
-            endedEarly = _endedEarly,
+            markedUnplayable = unplayable,
+            endedEarly = boring,
             surveyResults = results
         };
         Restart();
@@ -144,15 +158,8 @@ public abstract class GameManager : MonoBehaviour
 
     private void Restart()
     {
-        feedbackPanel.ToggleVisible(false);
+        feedbackPanel.ToggleVisible(false, "");
         StartCoroutine(RunRestartGame());
-    }
-    public void SetEnjoyment(int sValue)
-    {
-    }
-
-    public void SetNovelty(int sValue)
-    {
     }
 
     void RecurseLinkObjects(Transform trans)
@@ -183,7 +190,7 @@ public abstract class GameManager : MonoBehaviour
         Debug.Log("PLAYER REACHED EXIT");
         if (state == GameState.Playing)
         {
-            ProcessGameEnd();
+            ProcessGameEnd(EndReason.Win);
         }
     }
 
@@ -192,10 +199,19 @@ public abstract class GameManager : MonoBehaviour
         Debug.Log("PLAYER DEAD");
         if (state == GameState.Playing)
         {
-            ProcessGameEnd();
+            ProcessGameEnd(EndReason.Death);
         }
     }
     #endregion
+
+    public void AbortLevel(EndReason reason)
+    {
+        if (state == GameState.Playing)
+        {
+            ProcessGameEnd(reason);
+        }
+    }
+
 
     #region WEBGL_TEST_NETWORKING
     private string CreateJsonRequest()

@@ -11,14 +11,33 @@ public class LiveGameManager : GameManager
         state = GameState.Playing;
     }
 
-    protected override void ProcessGameEnd()
+    protected override void ProcessGameEnd(EndReason reason)
     {
 
         Time.timeScale = 0;
         state = GameState.Finished;
-
+        // remember why we lost
+        endReason = reason;
+        Debug.Log("Finished, reason=" + endReason.ToString());
         // SHOW SURVEY HERE
         feedbackPanel.ResetFields();
-        feedbackPanel.ToggleVisible(true);
+        var desc = ReasonToDescription(reason);
+        feedbackPanel.ToggleVisible(true,desc);
+    }
+
+    private string ReasonToDescription(EndReason reason)
+    {
+        switch (reason)
+        {
+            case EndReason.Win:
+                return "You Win!";
+            case EndReason.Death:
+                return "You Died!";
+            case EndReason.Unplayable:
+                return "Level is Unplayable.";
+            case EndReason.Boring:
+                return "Level is Boring.";
+        }
+        return "Uh... Oops?";
     }
 }

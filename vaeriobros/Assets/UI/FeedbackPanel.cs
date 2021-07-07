@@ -8,15 +8,17 @@ public class FeedbackPanel : MonoBehaviour
     [SerializeField] Slider enjoymentSlider;
     [SerializeField] Slider noveltySlider;
     [SerializeField] Slider desiredSlider;
+    [SerializeField] Text headerText;
 
     void Start()
     {
-        ToggleVisible(false);
+        ToggleVisible(false,"");
     }
 
-    public void ToggleVisible(bool visible)
+    public void ToggleVisible(bool visible, string header)
     {
         gameObject.SetActive(visible);
+        headerText.text = "RESULT: " + header;
     }
 
     public void OnSubmitClicked()
@@ -26,12 +28,13 @@ public class FeedbackPanel : MonoBehaviour
         results.ratedNovelty = noveltySlider.value;
         results.desiredNovelty = desiredSlider.value;
 
-        GameManager.singleton.SendFinishedSurvey(results, false, false);
+        GameManager.singleton.SendFinishedSurvey(results);
     }
 
     internal void ResetFields()
     {
-        enjoymentSlider.value = Random.Range((int)enjoymentSlider.minValue, (int)(enjoymentSlider.maxValue + 1));
-        noveltySlider.value = Random.Range((int)noveltySlider.minValue, (int)(noveltySlider.maxValue + 1));
+        enjoymentSlider.value = 3;
+        noveltySlider.value = 3;
+        desiredSlider.value = 3;
     }
 }

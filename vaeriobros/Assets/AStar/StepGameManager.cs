@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class StepGameManager : GameManager
 {
-    protected override void ProcessGameEnd()
+    protected override void ProcessGameEnd(EndReason reason)
     {
         
     }
