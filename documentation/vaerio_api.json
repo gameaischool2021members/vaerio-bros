@@ -13,7 +13,7 @@
             ],
             "modelName": STRING,
             "experimentName": STRING,
-            "markedUplayable": BOOL,
+            "markedUnplayable": BOOL,
             "endedEarly": BOOL,
             "surveyResults":{
                 "enjoyment": INT,
