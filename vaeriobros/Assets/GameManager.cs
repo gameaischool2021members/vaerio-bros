@@ -60,6 +60,8 @@ public abstract class GameManager : MonoBehaviour
     protected GameState state;
     protected readonly Dictionary<string, object> levelProviderFields = new Dictionary<string, object>();
 
+    public Player plumber;
+
     void Awake()
     {
         if (singleton == null)
@@ -94,6 +96,7 @@ public abstract class GameManager : MonoBehaviour
             // clear any existing level
             Time.timeScale = 0;
             followCam.Target = null;
+            plumber = null;
             if (procLevel != null)
             {
                 procLevel.DestroyLevel();
@@ -165,6 +168,7 @@ public abstract class GameManager : MonoBehaviour
         {
             player.OnDeath += this.OnPlayerDeath;
             followCam.Target = player.transform;
+            this.plumber = player;
         }
         // recurse down heirarchy
         for (int i = 0; i < trans.childCount; i++)
