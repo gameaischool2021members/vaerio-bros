@@ -58,6 +58,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] FeedbackPanel feedbackPanel;
 
     private GameState state;
+    private readonly Dictionary<string, object> levelProviderFields = new Dictionary<string, object>();
 
     void Awake()
     {
@@ -79,6 +80,8 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        levelProviderFields["playerId"] = Guid.NewGuid();
+        levelProviderFields["telemetry"] = new object();
         OnRestartButtonClicked();
         BottomHeight = -5f;
     }
@@ -97,22 +100,10 @@ public class GameManager : MonoBehaviour
             }
             // create a new level
             procLevel = Instantiate<ProcLevel>(procLevelPrefab, this.transform);
-            // receive level description
-            //var json = CreateJsonRequest();
-            //var chunks = new List<Chunk>();
-            //using (UnityWebRequest request = UnityWebRequest.Get("https://mariovae.herokuapp.com/level"))
-            //{
-            //    yield return request.SendWebRequest();
-            //    Debug.Log(request.result);
-            //    if(request.result == UnityWebRequest.Result.Success)
-            //    {
-            //        chunks = ParseWebResponse(request);
-            //    }
-            //}
-            //var chunks = DataManager.Instance.ChunksGET();
-            yield return DataManager.Instance.ChunksGET_Coroutine();
-            var chunks = (List<Chunk>)DataManager.Instance.ResponseDynamic;
-            //var chunks = new List<Chunk>();
+            // assign requestId here because this function is called on start
+            levelProviderFields["requestId"] = Guid.NewGuid();           
+            yield return DataManager.Instance.ChunksPOST_Coroutine(levelProviderFields);
+            var chunks = (List<Chunk>)DataManager.Instance.ProcessedResponse;
             // it used to be so simple...
             // chunks = FetchSampleLevel();
             // generate map
@@ -134,11 +125,38 @@ public class GameManager : MonoBehaviour
 
     void ProcessGameEnd()
     {
+
         Time.timeScale = 0;
         state = GameState.Finished;
+        //Provide data here
+        levelProviderFields["playerId"] = Guid.NewGuid();
+        var previousResponse = (LevelProviderResponse)DataManager.Instance.IntermediateResponse;
+        levelProviderFields["telemetry"] = new TelemetryData {
+            latentVectors = previousResponse.LatentVectors,
+            levelRepresentation = previousResponse.LevelRepresentation,
+            //experimentName = previousResponse.ExperimentName,
+            experimentName = "Hey Daniel, Did it work?",
+            modelName = "mariovae_z_dim_2",
+            markedUnplayable = false,
+            endedEarly = false,
+            surveyResults = new SurveyResults
+            {
+                enjoyment = 0.5f,
+                ratedNovelty = 0.5f,
+                desiredNovelty = 0.8f
+            }
+        };
         // SHOW SURVEY HERE
         feedbackPanel.ResetFields();
         feedbackPanel.ToggleVisible(true);
+    }
+
+    public void SetEnjoyment(int sValue)
+    {
+    }
+
+    public void SetNovelty(int sValue)
+    {
     }
 
     void RecurseLinkObjects(Transform trans)

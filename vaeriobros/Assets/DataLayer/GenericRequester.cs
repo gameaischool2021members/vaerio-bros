@@ -64,8 +64,8 @@ namespace Assets.DataLayer
             {
                 www.uploadHandler = (UploadHandler)new UploadHandlerRaw(bodyRaw);
                 www.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
-                www.SetRequestHeader("Content-Type", "application/json");
-
+                www.SetRequestHeader("Content-Type", "application/json; charset=utf-8");
+                www.SetRequestHeader("Content-Length", bodyRaw.Length.ToString());
                 yield return www.SendWebRequest();
 
                 if (www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError)
