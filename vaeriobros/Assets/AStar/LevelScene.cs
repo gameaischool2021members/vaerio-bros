@@ -32,6 +32,11 @@ public class LevelScene : MonoBehaviour
     public void Tick(bool[] action)
     {
         // TODO
+        // teleport player to position
+        
+        Physics2D.Simulate(Time.fixedDeltaTime);
+        // read player back
+
     }
 
     /// <summary>

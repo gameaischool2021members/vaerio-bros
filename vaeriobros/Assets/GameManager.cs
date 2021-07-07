@@ -46,7 +46,7 @@ public enum GameState
     Finished
 }
 
-public class GameManager : MonoBehaviour
+public abstract class GameManager : MonoBehaviour
 {
     public static GameManager singleton;
     private ProcLevel procLevel;
@@ -55,10 +55,10 @@ public class GameManager : MonoBehaviour
 
     public static float BottomHeight {get; private set;}
 
-    [SerializeField] FeedbackPanel feedbackPanel;
+    [SerializeField] protected FeedbackPanel feedbackPanel;
 
-    private GameState state;
-    private readonly Dictionary<string, object> levelProviderFields = new Dictionary<string, object>();
+    protected GameState state;
+    protected readonly Dictionary<string, object> levelProviderFields = new Dictionary<string, object>();
 
     void Awake()
     {
@@ -117,22 +117,8 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    void ProcessGameStart()
-    {
-        Time.timeScale = 1;
-        state = GameState.Playing;
-    }
-
-    void ProcessGameEnd()
-    {
-
-        Time.timeScale = 0;
-        state = GameState.Finished;
-        
-        // SHOW SURVEY HERE
-        feedbackPanel.ResetFields();
-        feedbackPanel.ToggleVisible(true);
-    }
+    protected abstract void ProcessGameStart();
+    protected abstract void ProcessGameEnd();
 
     internal void SendFinishedSurvey(SurveyResults results, bool _unplayable, bool _endedEarly)
     {

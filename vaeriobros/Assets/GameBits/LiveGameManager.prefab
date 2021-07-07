@@ -10,8 +10,9 @@ GameObject:
   m_Component:
   - component: {fileID: 869607556120780656}
   - component: {fileID: 869607556120780657}
+  - component: {fileID: 697777876}
   m_Layer: 0
-  m_Name: GameManager
+  m_Name: LiveGameManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -40,9 +41,21 @@ MonoBehaviour:
   m_GameObject: {fileID: 869607556120780654}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 43f936599ab710e4fa9a11a11210d1aa, type: 3}
+  m_Script: {fileID: 11500000, guid: cec5ef65fe7ff5b499506d46c3051bf1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   followCam: {fileID: 0}
   procLevelPrefab: {fileID: 5597746525961470980, guid: 3f35ae2f82c195949bc4df97d4ef7741, type: 3}
   feedbackPanel: {fileID: 0}
+--- !u!114 &697777876
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 869607556120780654}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 97deffcd6da9de34590520c59f42a780, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
