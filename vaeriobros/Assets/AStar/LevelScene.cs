@@ -7,7 +7,7 @@ using UnityEngine;
 /// I thought we could load the layout of the Scene in a seperate Unity Scene for simulations
 /// We ignore Enemies and fireballs for simplicity 
 /// </summary>
-public class LevelScene : MonoBehaviour
+public class LevelScene
 {
     public float plumberXposition; // mario.x in the original
     public float plumberYposition;
@@ -48,8 +48,8 @@ public class LevelScene : MonoBehaviour
         stepGameManager.SingleStep(action);
 
         // read player back
-        this.plumberXposition = plumber.transform.position.x;
-        this.plumberYposition = plumber.transform.position.y;
+        this.plumberXposition = plumber.thisRigidbody.position.x;
+        this.plumberYposition = plumber.thisRigidbody.position.y;
         this.plumberXacceleration = plumber.thisRigidbody.velocity.x;
         this.plumberYacceleration = plumber.thisRigidbody.velocity.y;
     }

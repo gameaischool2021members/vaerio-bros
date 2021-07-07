@@ -26,5 +26,8 @@ public class LiveGameManager : GameManager
 
     }
 
-    
+    protected override void OnStart()
+    {
+        Restart();
+    }
 }

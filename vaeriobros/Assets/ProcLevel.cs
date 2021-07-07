@@ -30,6 +30,10 @@ public class ProcLevel : MonoBehaviour
 
     public void Generate(List<Chunk> chunks)
     {
+        Generate(chunks, true);
+    }
+    public void Generate(List<Chunk> chunks, bool SpawnGoompas)
+    {
         int startX = 14;
         // add starting padding
         for (int i = 0; i < startX; i++)
@@ -49,6 +53,10 @@ public class ProcLevel : MonoBehaviour
             for(int i = 0; i < chunk.blocks.Count; i++)
             {
                 var block = chunk.blocks[i];
+                if (block == BlockType.Goomba && !SpawnGoompas)
+                {
+                    continue;
+                }
                 var x = i % chunk.sizeX;
                 var row = i / chunk.sizeY;
                 var y = chunk.sizeY - row - 1;

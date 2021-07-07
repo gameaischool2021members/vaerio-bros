@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-internal class FollowCam : MonoBehaviour
+public class FollowCam : MonoBehaviour
 {
     public Transform Target { get; set; }
     Transform thisTransform;

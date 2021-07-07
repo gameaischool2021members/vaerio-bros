@@ -57,7 +57,10 @@ public class Player : MonoBehaviour
         if (!dead)
         {
             dead = true;
-            OnDeath();
+            if (OnDeath != null)
+            {
+                OnDeath();
+            }
         }
     }
 

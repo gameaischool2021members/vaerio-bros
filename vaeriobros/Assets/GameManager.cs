@@ -57,9 +57,9 @@ public enum EndReason
 public abstract class GameManager : MonoBehaviour
 {
     public static GameManager singleton;
-    private ProcLevel procLevel;
-    [SerializeField] FollowCam followCam;
-    [SerializeField] ProcLevel procLevelPrefab;
+    protected ProcLevel procLevel;
+    [SerializeField] protected FollowCam followCam;
+    [SerializeField] protected ProcLevel procLevelPrefab;
 
     public static float BottomHeight {get; private set;}
 
@@ -92,9 +92,11 @@ public abstract class GameManager : MonoBehaviour
     {
         levelProviderFields["playerId"] = Guid.NewGuid();
         levelProviderFields["telemetry"] = new object();
-        Restart();
         BottomHeight = -5f;
+        OnStart();
     }
+
+    protected abstract void OnStart();
 
     IEnumerator RunRestartGame()
     {
@@ -153,13 +155,13 @@ public abstract class GameManager : MonoBehaviour
     }
 
 
-    private void Restart()
+    protected void Restart()
     {
         feedbackPanel.ToggleVisible(false, EndReason.Death);
         StartCoroutine(RunRestartGame());
     }
 
-    void RecurseLinkObjects(Transform trans)
+    protected void RecurseLinkObjects(Transform trans)
     {
         // link components
         var exitFlag = trans.GetComponent<ExitFlag>();
