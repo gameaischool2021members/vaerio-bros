@@ -4,13 +4,29 @@ import json
 
 
 if __name__ == "__main__":
+    with open("test_data.json", "r") as f:
+        test_level_data = json.loads(f.read())
+
     TEST_LEVEL_REQUEST_NO_TELEMETRY = {
         "requestId":str(uuid.uuid4()),
-            "playerId":"EndpointTest",
-            "telemetry":{}
+        "playerId":"EndpointTest",
+        "telemetry":{
+            "latentVectors": test_level_data["latentVectors"],
+            "levelRepresentation":test_level_data["levelRepresentation"],
+            "modelName": "mariovae_z_dim_2",
+            "experimentName": test_level_data["experimentName"],
+            "markedUplayable": False,
+            "endedEarly": False,
+            "surveyResults":{
+                    "enjoyment": 0.5,
+                    "ratedNovelty": 0.4,
+                    "desiredNovelty": 0.2
+                }
+        }
     }
 
     TEST_ENDPOINT = "http://localhost:5000/level"
+    TEST_ENDPOINT = "https://vaerio-level-providor.herokuapp.com/level"
 
     req = urllib.request.Request(TEST_ENDPOINT)
     req.add_header('Content-Type', 'application/json; charset=utf-8')
