@@ -30,7 +30,7 @@ public class AStarSimulator
 
     static int DAMAGEPENALTY = 1000000;
     static int DAMAGEPENALTYTIMEFACTOR = 100;
-    static int maxRight = 10;                 // distance to plan to the right
+    static int maxRight = 20;                 // distance to plan to the right
 
     // Values to measure when a node was already visited
     // these values can be tweaked
@@ -41,6 +41,9 @@ public class AStarSimulator
 
     // How many actions Mario makes for each search step (can be tweaked)
     public int stepsPerSearch = 2;
+
+    // The maximum number of ticks we plan before moving.
+    public int planningTicks = 200;
 
     public static float maxMarioSpeed = SharedData.runSpeed;
 
@@ -229,7 +232,7 @@ public class AStarSimulator
         // Search until we've reached the right side of the screen, or if the time is up.
         while (posPool.Count != 0
                 && ((bestPosition.sceneSnapshot.plumberXposition - currentSearchStartingMarioXPos < maxRight) || !currentGood)
-                && (Time.realtimeSinceStartup - startTime < 0.02f) )
+                && ( ticks < planningTicks ))
         //&& (System.currentTimeMillis() - startTime < Math.min(200,timeBudget/2))) <- this makes the game a bit more jerky, but allows a deeper search in tough situations
         {
             ticks++;
@@ -294,7 +297,7 @@ public class AStarSimulator
                 // when the search is stopped (by time-out) while we're over a gap
                 if (current.sceneSnapshot.plumberXposition > furthestPosition.sceneSnapshot.plumberXposition
                         //&& !levelScene.level.isGap[(int)(current.sceneSnapshot.plumberXposition / 16)])
-                        && !levelScene.isGap(current.sceneSnapshot.plumberXposition))
+                        && !levelScene.isGap(current.sceneSnapshot.plumberXposition, current.sceneSnapshot.plumberYposition))
                     furthestPosition = current;
             }
         }
@@ -303,7 +306,7 @@ public class AStarSimulator
                 && furthestPosition.sceneSnapshot.plumberXposition > bestPosition.sceneSnapshot.plumberXposition + 20
                 // && (levelScene.mario.fire ||
                 //        levelScene.level.isGap[(int)(bestPosition.sceneSnapshot.mario.x / 16)]))
-                && levelScene.isGap(bestPosition.sceneSnapshot.plumberXposition))
+                && levelScene.isGap(bestPosition.sceneSnapshot.plumberXposition, bestPosition.sceneSnapshot.plumberXposition))
         {
             // Couldnt plan till end of screen, take furthest (in some situations)
             bestPosition = furthestPosition;
@@ -363,8 +366,8 @@ public class AStarSimulator
     public int getMarioDamage()
     {
         // early damage at gaps: Don't even fall 1 px into them.
-        if (levelScene.isGap(levelScene.plumberXposition) &&
-                (levelScene.plumberYposition - (MARIOHEIGHT / 2)) > levelScene.gapHeight(levelScene.plumberXposition)) // changed it to smaller since we calculate GapHeight differently, also substract hafl plumber height since the position is in the middle
+        if (levelScene.isGap(levelScene.plumberXposition, levelScene.plumberYposition) &&
+                (levelScene.plumberYposition - (MARIOHEIGHT / 2)) < levelScene.gapHeight(levelScene.plumberXposition)) // changed it to smaller since we calculate GapHeight differently, also substract hafl plumber height since the position is in the middle
         {
             levelScene.plumberDamage += 5;
         }

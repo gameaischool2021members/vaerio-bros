@@ -58,11 +58,22 @@ public class LevelScene
     /// </summary>
     /// <param name="position"></param>
     /// <returns></returns>
-    public bool isGap( float position)
+    public bool isGap( float position, float y_position)
     {
-        // TODO
-        var col = Physics2D.OverlapPoint(new Vector2(position, 0),SharedData.SolidLayers);
-        return col == null;
+        int roundedPosition = Mathf.RoundToInt(position);
+        StepGameManager stepGameManager = (StepGameManager)GameManager.singleton;
+
+        //Dirty fix for not going left.
+        if (position < 0f)
+        {
+            return true;
+        }
+
+        float floorHeight = stepGameManager.floorHeights[roundedPosition];
+
+
+
+        return y_position < floorHeight;
     }
 
     /// <summary>

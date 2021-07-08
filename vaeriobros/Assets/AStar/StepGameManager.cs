@@ -177,7 +177,7 @@ public class StepGameManager : GameManager
         for (int i = 0; i < procLevel.LevelWidth; i++)
         {
             Vector2 floorPos = new Vector2(i, 0);
-            // Vector2 ceilingPos = new Vector2(i, procLevel.LevelHeight);
+            Vector2 ceilingPos = new Vector2(i, procLevel.LevelHeight);
 
             // check occupancy
             var obs = Physics2D.OverlapPoint(floorPos, SharedData.SolidLayers);
@@ -188,23 +188,23 @@ public class StepGameManager : GameManager
             }
             else
             {
-                floorHeights[i] = -1;
+                floorHeights[i] = Mathf.Infinity;
                 gapData[i] = AnalyseGap(floorPos, procLevel.LevelHeight, procLevel.ChunkWidth);
                 // Debug.Log("Gap at " + floorPos + " = " + gapData[i]);
             }
-            //// linecast upwards
-            //var hit = Physics2D.Linecast(floorPos, ceilingPos, SharedData.SolidLayers);
-            //// only measure a "gap" if there is no ceiling
-            //if (hit.collider == null)
-            //{
-            //    floorHeights[i] = -1;
-            //    gapData[i] = AnalyseGap(floorPos, procLevel.LevelHeight, procLevel.ChunkWidth);
-            //    Debug.Log("Gap at " + floorPos + " = " + gapData[i]);
-            //}
-            //else
-            //{
-            //    floorHeights[i] = Mathf.CeilToInt(hit.distance);
-            //}
+            // linecast upwards
+            var hit = Physics2D.Linecast(floorPos, ceilingPos, SharedData.SolidLayers);
+            // only measure a "gap" if there is no ceiling
+            if (hit.collider == null)
+            {
+                floorHeights[i] = Mathf.Infinity;
+                gapData[i] = AnalyseGap(floorPos, procLevel.LevelHeight, procLevel.ChunkWidth);
+                Debug.Log("Gap at " + floorPos + " = " + gapData[i]);
+            }
+            else
+            {
+                floorHeights[i] = Mathf.CeilToInt(hit.distance);
+            }
         }
     }
 
