@@ -10,6 +10,7 @@ public static class SharedData
     public static float jumpPower = 13;
     public static float bouncePower = 6;
 
+    public static LayerMask SolidLayers = 1 << LayerMask.NameToLayer("Solid");
 
     /// <summary>
     /// DOES NOT INCLUDE GRAVITY CALCULATIONS

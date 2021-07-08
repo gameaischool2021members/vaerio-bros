@@ -9,10 +9,13 @@ using UnityEngine;
 /// </summary>
 public class LevelScene
 {
+
+
     public float plumberXposition; // mario.x in the original
     public float plumberYposition;
     public float plumberXacceleration; // I think that ist mario.xa in the original
     public float plumberYacceleration;
+    public bool plumberCanJump;
     public int plumberDamage = 0; // the damage(falling is counting as damage) that the plumber is getting (Why do we need to store this?)
 
     public LevelScene Clone()
@@ -22,7 +25,9 @@ public class LevelScene
         clonedScene.plumberYposition = this.plumberYposition;
         clonedScene.plumberXacceleration = this.plumberXacceleration;
         clonedScene.plumberYacceleration = this.plumberYacceleration;
+        clonedScene.plumberCanJump = this.plumberCanJump;
         clonedScene.plumberDamage = this.plumberDamage;
+        
         
         return clonedScene;
     }
@@ -52,6 +57,7 @@ public class LevelScene
         this.plumberYposition = plumber.thisRigidbody.position.y;
         this.plumberXacceleration = plumber.thisRigidbody.velocity.x;
         this.plumberYacceleration = plumber.thisRigidbody.velocity.y;
+        this.plumberCanJump = plumber.ForcePhysCheckGround();
     }
 
     /// <summary>
@@ -63,7 +69,9 @@ public class LevelScene
     public bool isGap( float position)
     {
         // TODO
-        return true;
+        var col = Physics2D.OverlapPoint(new Vector2(position, 0),SharedData.SolidLayers);
+
+        return col == null;
     }
 
     /// <summary>
@@ -75,6 +83,7 @@ public class LevelScene
     public float gapHeight( float position)
     {
         // TODO
+        
         return 0;
     }
 
@@ -83,7 +92,7 @@ public class LevelScene
     /// </summary>
     public bool PlumberMayJump()
     {
-        return true;
+        return plumberCanJump;
     }
 }
 

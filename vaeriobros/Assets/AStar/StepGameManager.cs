@@ -4,9 +4,37 @@ using UnityEngine;
 using Newtonsoft.Json;
 using Assets.Model;
 
+public struct GapInfo
+{
+    public float LeftHeight { get; private set; }
+    public float RightHeight { get; private set; }
+    public float MinHeight { get; }
+    public float MaxHeight { get; }
+
+    public GapInfo(float leftHeight, float rightHeight)
+    {
+        LeftHeight = leftHeight;
+        RightHeight = rightHeight;
+        MinHeight = Mathf.Min(LeftHeight, RightHeight);
+        MaxHeight = Mathf.Max(LeftHeight, RightHeight);
+    }
+
+    public override string ToString()
+    {
+        return string.Format("Gap({0:F},{1:F})", LeftHeight, RightHeight);
+    }
+
+}
+
 public class StepGameManager : GameManager
 {
     string debugLevel = "[[[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,5,2,2,2,2,2,2,2,2,2,2,2],[2,6,7,2,2,2,2,2,2,2,5,2,2,2],[2,8,9,2,2,2,2,2,2,6,7,2,2,2],[2,8,9,2,2,2,2,2,2,8,9,2,2,2],[0,0,0,0,0,0,0,0,0,0,0,0,0,0]],[[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[1,1,1,1,1,1,1,1,1,1,1,1,1,1],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,5,2],[2,2,2,2,2,2,2,2,2,2,2,6,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,9,2],[2,2,2,2,2,2,2,2,2,2,2,8,5,2],[2,2,2,2,2,2,2,2,5,2,2,6,7,2],[2,5,2,2,2,2,2,6,7,2,2,8,9,2],[2,7,2,2,2,2,2,8,9,2,2,8,9,2],[2,9,2,2,2,2,2,8,9,2,2,8,9,2],[0,0,0,0,0,0,0,0,0,0,0,0,0,0]],[[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,5,2,2,2,2,2,2,2,2,2,2,2],[2,2,0,0,0,0,0,0,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[0,0,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,0]],[[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,0,0,0,2,2,2,2,2],[2,2,2,2,2,2,0,0,0,2,2,2,2,2],[2,2,2,2,0,0,0,0,0,2,2,2,2,2],[2,2,2,0,0,0,0,0,0,2,2,2,2,2],[2,2,0,0,0,0,0,0,0,2,2,2,2,2],[2,0,0,0,0,0,0,0,0,2,2,2,2,2],[0,0,0,0,0,0,0,0,0,2,2,2,2,2],[0,0,0,0,0,0,0,0,2,2,2,2,2,2],[0,0,0,0,0,0,0,0,0,0,0,0,0,0]],[[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,1,1,1,1,1,2,2,2],[2,2,2,2,0,0,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,0,0,2,0,0,0,0,0,2,2,2,2]]]";
+
+
+    [SerializeField] bool showGapDebug = true;
+    public GapInfo[] gapData = null;
+    public float[] floorHeights = null;
+
 
     protected override void ProcessGameEnd(EndReason reason)
     {
@@ -58,6 +86,151 @@ public class StepGameManager : GameManager
         testScene.Tick(AStarSimulator.createAction(false, false, false));
     }
 
+    public void OnDrawGizmos()
+    {
+        if (!showGapDebug)
+        {
+            return;
+        }
+        if (gapData == null)
+        {
+            return;
+        }
+        Gizmos.color = new Color(0, 1, 0, 0.5f);
+
+        for (int i = 0; i < gapData.Length; i++)
+        {
+            var gap = gapData[i];
+            if (gap.MaxHeight > 0)
+            {
+                var center = new Vector3(i, -0.5f + gap.MinHeight / 2, 0);
+                var size = new Vector3(1, gap.MinHeight, 0.1f);
+                Gizmos.DrawCube(center, size);
+            }
+        }
+
+        Gizmos.color = new Color(0, 0, 1, 0.5f);
+        for (int i = 0; i < gapData.Length; i++)
+        {
+            var gap = gapData[i];
+            if (gap.MaxHeight > 0)
+            {
+                var center = new Vector3(i, -0.5f + gap.MaxHeight / 2, 0);
+                var size = new Vector3(1, gap.MaxHeight, 0.1f);
+                Gizmos.DrawCube(center, size);
+            }
+        }
+
+        if(floorHeights == null)
+        {
+            return;
+        }
+
+        Gizmos.color = new Color(1, 0, 0, 0.5f);
+        for (int i = 0; i < floorHeights.Length; i++)
+        {
+            var height = floorHeights[i];
+            if(height > 0)
+            {
+                var center = new Vector3(i, -0.5f + height / 2, 0);
+                var size = new Vector3(1, height, 0.1f);
+                Gizmos.DrawCube(center, size);
+            }
+        }
+    }
+
+    public void AnalyseLevel()
+    {
+        gapData = new GapInfo[procLevel.LevelWidth];
+        floorHeights = new float[procLevel.LevelWidth];
+        for (int i = 0; i < procLevel.LevelWidth; i++)
+        {
+            Vector2 floorPos = new Vector2(i, 0);
+            Vector2 ceilingPos = new Vector2(i, procLevel.LevelHeight);
+
+            // check occupancy
+            var obs = Physics2D.OverlapPoint(floorPos, SharedData.SolidLayers);
+            if (obs != null)
+            {
+                floorHeights[i] = 0;
+                continue;
+            }
+            // linecast upwards
+            var hit = Physics2D.Linecast(floorPos, ceilingPos, SharedData.SolidLayers);
+            // only measure a "gap" if there is no ceiling
+            if (hit.collider == null)
+            {
+                floorHeights[i] = -1;
+                gapData[i] = AnalyseGap(floorPos, procLevel.LevelHeight, procLevel.ChunkWidth);
+                Debug.Log("Gap at " + floorPos + " = " + gapData[i]);
+            }
+            else
+            {
+                floorHeights[i] = Mathf.CeilToInt(hit.distance);
+            }
+        }
+
+    }
+
+    private GapInfo AnalyseGap(Vector2 floorPos, int levelHeight, int chunkWidth)
+    {
+        //const float HALF_TILE_HEIGHT = 0.5f;
+        int closestLeft = chunkWidth;
+        int closestRight = chunkWidth;
+
+        bool needLeft = true;
+        float leftHeight = 0;
+        bool needRight = true;
+        float rightHeight = 0;
+        for (int i = 0; i < levelHeight; i++)
+        {
+            // calculate end points
+            var midPos = new Vector2(floorPos.x, i);
+            var leftPos = new Vector2(floorPos.x - closestLeft, i);
+            var rightPos = new Vector2(floorPos.x + closestRight, i);
+            // check left
+            if (needLeft)
+            {
+                var leftHit = Physics2D.Linecast(midPos, leftPos, SharedData.SolidLayers);
+                if (leftHit.collider == null)
+                {
+                    leftHeight = i;
+                    needLeft = false;
+                }
+                else
+                {
+                    var dist = Mathf.CeilToInt(leftHit.distance);
+                    if (dist < closestLeft)
+                    {
+                        closestLeft = dist;
+                    }
+                }
+            }
+            // check right
+            if (needRight)
+            {
+                var rightHit = Physics2D.Linecast(midPos, rightPos, SharedData.SolidLayers);
+                // if we hit nothing, we found the minimum height
+                if (rightHit.collider == null)
+                {
+                    rightHeight = i;
+                    needRight = false;
+                }
+                else
+                {
+                    var dist = Mathf.CeilToInt(rightHit.distance);
+                    if (dist < closestRight)
+                    {
+                        closestRight = dist;
+                    }
+                }
+            }
+
+
+        }
+        return new GapInfo(leftHeight, rightHeight);
+    }
+
     IEnumerator RunSimulation()
     {
         state = GameState.Loading;
@@ -73,10 +246,10 @@ public class StepGameManager : GameManager
         // create a new level
         procLevel = Instantiate<ProcLevel>(procLevelPrefab, this.transform);
         procLevel.Generate(chunks, false);
-        // assign requestId here because this function is called on start
-        LoadDebugLevel();
         // link objects in level
         RecurseLinkObjects(procLevel.transform);
+        yield return new WaitForEndOfFrame();
+        AnalyseLevel();
         yield return new WaitForEndOfFrame();
         // launch game
         ProcessGameStart();

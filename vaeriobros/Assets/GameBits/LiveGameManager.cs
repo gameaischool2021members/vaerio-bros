@@ -28,6 +28,7 @@ public class LiveGameManager : GameManager
 
     protected override void OnStart()
     {
+        feedbackPanel.ToggleVisible(false,EndReason.Death);
         Restart();
     }
 }

@@ -61,7 +61,8 @@ public abstract class GameManager : MonoBehaviour
     [SerializeField] protected FollowCam followCam;
     [SerializeField] protected ProcLevel procLevelPrefab;
 
-    public static float BottomHeight {get; private set;}
+    public static float KillHeight {get; private set;}
+    public static float MaxHeight { get; private set; }
 
     [SerializeField] protected FeedbackPanel feedbackPanel;
 
@@ -92,7 +93,7 @@ public abstract class GameManager : MonoBehaviour
     {
         levelProviderFields["playerId"] = Guid.NewGuid();
         levelProviderFields["telemetry"] = new object();
-        BottomHeight = -5f;
+        KillHeight = -5f;
         OnStart();
     }
 

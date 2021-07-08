@@ -18,6 +18,8 @@ public class Player : MonoBehaviour
     public float jumpInput;
     private bool bounce;
 
+    public bool IsOnFloor { get; private set; }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -79,11 +81,8 @@ public class Player : MonoBehaviour
     {
         var currentVel = thisRigidbody.velocity;
 
-        var colliderHeight = (playerCollider.size.y * 0.5f) + 0.01f;
-        var checkPoint = thisRigidbody.position + (Vector2.down * colliderHeight);
-        var col = Physics2D.OverlapPoint(checkPoint, floorCheckLayers);
-        if (col == null)
-        {
+        IsOnFloor = ForcePhysCheckGround();
+        if (!IsOnFloor) {
             jumpInput = 0;
         }
 
@@ -97,9 +96,17 @@ public class Player : MonoBehaviour
         thisRigidbody.velocity = currentVel;
 
         // check fallen out the map
-        if (thisRigidbody.position.y < GameManager.BottomHeight)
+        if (thisRigidbody.position.y < GameManager.KillHeight)
         {
             Die();
         }
+    }
+
+    public bool ForcePhysCheckGround()
+    {
+        var colliderHeight = (playerCollider.size.y * 0.5f) + 0.01f;
+        var checkPoint = thisRigidbody.position + (Vector2.down * colliderHeight);
+        var col = Physics2D.OverlapPoint(checkPoint, floorCheckLayers);
+        return col != null;
     }
 }

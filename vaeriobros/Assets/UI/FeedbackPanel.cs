@@ -13,11 +13,6 @@ public class FeedbackPanel : MonoBehaviour
 
     private EndReason endReason = EndReason.Death;
 
-    void Start()
-    {
-        ToggleVisible(false,EndReason.Death);
-    }
-
     public void ToggleVisible(bool visible, EndReason reason)
     {
         gameObject.SetActive(visible);

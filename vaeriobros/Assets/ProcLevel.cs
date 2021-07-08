@@ -28,12 +28,18 @@ public class ProcLevel : MonoBehaviour
     [SerializeField] GameObject exitPrefab;
     [SerializeField] List<GameObject> prefabs;
 
+    public float ExitX { get; private set; }
+    public int LevelWidth { get; private set; }
+    public int LevelHeight { get; private set; }
+    public int ChunkWidth { get; private set; }
+
     public void Generate(List<Chunk> chunks)
     {
         Generate(chunks, true);
     }
     public void Generate(List<Chunk> chunks, bool SpawnGoompas)
     {
+        
         int startX = 14;
         // add starting padding
         for (int i = 0; i < startX; i++)
@@ -44,6 +50,7 @@ public class ProcLevel : MonoBehaviour
         InstanceSpawn(3, 2);
 
         int endX = startX;
+        
         // spawn level sections
         for(int c = 0; c < chunks.Count; c++)
         {
@@ -72,6 +79,16 @@ public class ProcLevel : MonoBehaviour
             
         }
         InstanceExit(endX + 3, 1);
+        // store level information
+        ExitX = endX + 3;
+        LevelWidth = endX + 5;
+        LevelHeight = 10;
+        ChunkWidth = 14;
+        if (chunks.Count > 0)
+        {
+            LevelHeight = chunks[0].sizeY;
+            ChunkWidth = chunks[0].sizeX;
+        }
     }
 
     internal void DestroyLevel()
