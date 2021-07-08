@@ -43,8 +43,11 @@ def level():
         else:
             data = data_request
 
+    request_id = data.get("requestId") or "None"
     zs = data.get("zs")
     experiment_name = data.get("experimentName") or "None"
+    model_name = data.get("modelName") or "mariovae_z_dim_2"
+    # model_name = "mariovae_z_dim_2"
 
     if isinstance(zs, str):
         zs = json.loads(zs)
@@ -52,8 +55,10 @@ def level():
     if zs is None:
         experiment_name = "random"
         zs = 3 * torch.randn((5, 2))
+        og_zs = [z.tolist().copy() for z in zs]
+    else:
+        og_zs = [z.copy() for z in zs]
 
-    model_name = "mariovae_z_dim_2"
     db = psycopg2.connect(db_url)
     query_db = Query(db)
     timestamp = time.time()
@@ -70,7 +75,16 @@ def level():
     levels = torch.argmax(levels, dim=1)
     levels = levels.tolist()
 
-    return jsonify(levels)
+    res = {
+        "requestId": request_id,
+        "experimentName": experiment_name,
+        "modelName": model_name,
+        "latentVector": og_zs,
+        "levelSliceRepresentation": levels,
+    }
+    # res = levels
+
+    return jsonify(res)
 
 
 if __name__ == "__main__":

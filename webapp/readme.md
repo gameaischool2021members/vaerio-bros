@@ -5,18 +5,32 @@ This is a basic web app that serves an API. It allows people to query for levels
 The signature for POSTing:
 ```
 {
+    "requestId": "your_request_id",
     "experimentName": "a_string",
+    "modelName": "mariovae_zdim_2",
     "zs": [[0.0, 0.0], [0.1, -0.6]]
 }
 ```
-we might add `modelName` later on.
+we might add more possible `modelName`s later on.
 
 You could also query the API using GET requests as follows:
 - `/level` to get 5 random levels.
 - `/level?zs=[[0.1, 0.2], [0.3, 0.5]]`, i.e. passing the `zs` you want to query.
 - `/level?zs=[[0.1, 0.2]]&experimentName=my_cool_experiment`, i.e. passing the `zs` and passing the experiment name.
 
-All of these requests return a list `[level_1, level_2, ...]` corresponding to the `zs` passed. Each level is a list of list of ints, and the encoding is the following:
+This query returns a JSON document with the following structure:
+
+```
+{
+        "requestId":STRING,
+        "experimentName":STRING,
+        "modelName":STRING,
+        "latentVector":[ N dimenstional vectors ],
+        "levelSliceRepresentation":[ N H x W-arrays of INTs represetning block types ],
+    }
+```
+
+And this is the encoding for the levels inside `levelSliceRepresentation`.
 
 ```
 0 -> stone
