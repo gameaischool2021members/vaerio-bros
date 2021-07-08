@@ -19,6 +19,7 @@ public class Player : MonoBehaviour
     private bool bounce;
 
     public bool IsOnFloor { get; private set; }
+    public bool CanJump { get; private set; }
 
     // Start is called before the first frame update
     void Start()
@@ -82,8 +83,15 @@ public class Player : MonoBehaviour
         var currentVel = thisRigidbody.velocity;
 
         IsOnFloor = ForcePhysCheckGround();
-        if (!IsOnFloor) {
+        CanJump = IsOnFloor && currentVel.y <= 0;
+        if (!IsOnFloor)
+        {
             jumpInput = 0;
+            thisRigidbody.AddForce(Physics2D.gravity * 2);
+        }
+        else
+        {
+            currentVel.y = 0;
         }
 
         currentVel = SharedData.ComputePlayerVelocity(currentVel, walkInput, jumpInput, Time.deltaTime);
@@ -104,9 +112,15 @@ public class Player : MonoBehaviour
 
     public bool ForcePhysCheckGround()
     {
-        var colliderHeight = (playerCollider.size.y * 0.5f) + 0.01f;
-        var checkPoint = thisRigidbody.position + (Vector2.down * colliderHeight);
-        var col = Physics2D.OverlapPoint(checkPoint, floorCheckLayers);
-        return col != null;
+        var colliderHeight = (playerCollider.size.y * 0.5f) + 0.025f;
+        var colliderWidth = (playerCollider.size.x * 0.5f) - 0.05f;
+        var midPoint = thisRigidbody.position +(Vector2.down * colliderHeight);
+        var leftPoint = midPoint + (Vector2.left * colliderWidth);
+        var rightPoint = midPoint + (Vector2.right * colliderWidth);
+        
+        var grounded = false;
+        grounded |= (Physics2D.OverlapPoint(leftPoint, floorCheckLayers) != null);
+        grounded |= (Physics2D.OverlapPoint(rightPoint, floorCheckLayers) != null);
+        return grounded;
     }
 }
