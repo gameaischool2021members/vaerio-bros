@@ -8,7 +8,7 @@ if __name__ == "__main__":
     with open("test_data.json", "r") as f:
         test_level_data = json.loads(f.read())
 
-    TEST_LEVEL_REQUEST_NO_TELEMETRY = {
+    TEST_LEVEL_REQUEST = {
         "requestId":str(uuid.uuid4()),
         "playerId":"EndpointTest",
         "telemetry":{
@@ -31,7 +31,7 @@ if __name__ == "__main__":
 
     req = urllib.request.Request(TEST_ENDPOINT)
     req.add_header('Content-Type', 'application/json; charset=utf-8')
-    json_data = json.dumps(TEST_LEVEL_REQUEST_NO_TELEMETRY)
+    json_data = json.dumps(TEST_LEVEL_REQUEST)
     data_bytes = json_data.encode('utf-8')   # needs to be bytes
     req.add_header('Content-Length', len(data_bytes))
 

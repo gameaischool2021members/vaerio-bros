@@ -1,18 +1,32 @@
 import os
 import json
 import time
+import random
 
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 import psycopg2
 from db_interface import PlayerFeedbackTable
 
-from LevelEvaluators.RandomLevelGenerator import RandomLevelGenerator as LevelGenerator
+from LevelEvaluators.RandomLevelGenerator import RandomLevelGenerator
+from LevelEvaluators.EnjoymentSurfaceContentGenerator import EnjoymentSurfaceContentGenerator 
 
 
 app = Flask(__name__)
 CORS(app)
-level_generator = LevelGenerator()
+
+
+random_model = RandomLevelGenerator()
+surfaceModel = EnjoymentSurfaceContentGenerator()
+
+level_generators = {
+    random_model.name: random_model,
+    surfaceModel.name: surfaceModel,
+}
+
+max_player_memory = 2
+player_lookup = {}
+player_queue = []
 
 
 try:
@@ -25,7 +39,6 @@ except ModuleNotFoundError:
 db_url = os.environ["DATABASE_URL"]
 
 #Create the table
-
 db = psycopg2.connect(db_url)
 feedback_table_db = PlayerFeedbackTable(db)
 feedback_table_db.CreateTable()
@@ -71,6 +84,24 @@ RESPONSE_FORMAT = """
         ]
     }
 """
+
+
+def SelectModelForPlayer(player_request):
+    if player_request["playerId"] in player_lookup:
+        try:
+            player_queue.remove(player_request["playerId"])
+        except:
+            pass
+    else:
+        player_lookup[player_request["playerId"]] = random.choice(list(level_generators.keys()))
+        
+    player_queue.append(player_request["playerId"])
+
+    if(len(player_queue) > max_player_memory):
+        removed_player = player_queue.pop(0)
+        player_lookup.pop(removed_player, None)
+    
+    return level_generators[player_lookup[player_request["playerId"]]]
 
 
 def GetPlayerPreferenceFromPlayerTelemetry(player_request_data):
@@ -143,16 +174,15 @@ def StoreTelemetryInDatabase(request_data):
         request_data["telemetry"]["surveyResults"]["desiredNovelty"])
 
 
-def GetExperimentName():
-    return level_generator.name
+def GetExperimentName(request):
+    return player_lookup[request["playerId"]]
 
 
 @app.route("/")
 def landing():
     return f"""
     <h1>Level Evaluator and Providor</h1>
-    <h2>Providor Name: {level_generator.name}</h2>
-
+    
     <h3>/level</h3>
     <h4> Request Format</h4>
     <pre>{REQUEST_FORMAT}</pre>
@@ -170,6 +200,14 @@ def feedback():
     return feedbackItems
 
 
+@app.route("/update-surface_model")
+def UpdateSurfaceModel():
+    if "enjoyment-surface" in level_generators:
+        level_generators["enjoyment-surface"].BuildSurfaceFromFeedbackData()
+    
+    return "<h1>Updating Surface Model</h1>"
+
+
 @app.route("/level", methods=["GET", "POST"])
 def level():
     if request.method == "GET":
@@ -183,7 +221,10 @@ def level():
         else:
             data = data_request
     
-    data["experimentName"] = GetExperimentName()
+    level_generator = SelectModelForPlayer(data)
+
+
+    data["experimentName"] = GetExperimentName(data)
 
 
     # (2) Translate Player Telemetry Data to Player Preferences
