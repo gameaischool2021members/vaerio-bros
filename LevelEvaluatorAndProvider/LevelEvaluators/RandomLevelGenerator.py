@@ -14,7 +14,7 @@ class RandomLevelGenerator():
         
             new_vector = []
             for element_i in range(vector_length):
-                new_vector.append(random.uniform(0, 10))
+                new_vector.append(random.uniform(-5, 5))
         
             latent_vectors.append(new_vector)
         

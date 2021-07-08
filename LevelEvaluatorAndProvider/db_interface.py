@@ -113,7 +113,7 @@ class PlayerFeedbackTable:
 
     
     def FeedbackItemResponseToJson(self, feedback_items):
-        feedback_item_json = {"feedabackItems":[]}
+        feedback_item_json = {"feedbackItems":[]}
 
         for item in feedback_items:
             item_json = {}
@@ -131,7 +131,7 @@ class PlayerFeedbackTable:
             item_json["rated_novelty"] = item[10]
             item_json["desired_novelty"] = item[11]
 
-            feedback_item_json["feedabackItems"].append(item_json)
+            feedback_item_json["feedbackItems"].append(item_json)
         
         return feedback_item_json
 
