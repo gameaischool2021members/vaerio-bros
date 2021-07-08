@@ -46,7 +46,8 @@ public class StepGameManager : GameManager
         Physics2D.simulationMode = SimulationMode2D.Script;
 
         // StartCoroutine(DebugPlanner());
-        StartCoroutine(Solve());
+        // StartCoroutine(Solve());
+        StartCoroutine(Optimize());
     }
 
 
@@ -60,7 +61,7 @@ public class StepGameManager : GameManager
     {
         foreach (bool[] action in actions)
         {
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < repetitions; i++)
             {
                 yield return new WaitForSeconds(0.02f);
                 SingleStep(action);
@@ -79,6 +80,18 @@ public class StepGameManager : GameManager
         List<bool[]> actions = simulator.Plan();
         StartCoroutine(RunPlan(actions, simulator.stepsPerSearch));
         yield return new WaitForSeconds(2f);
+    }
+
+    IEnumerator Optimize()
+    {
+        AStarSimulator simulator = new AStarSimulator();
+        while (true)
+        {
+            bool[] action = simulator.optimise();
+            // bool[] action = AStarSimulator.createAction(false, true, false);
+            SingleStep(action);
+            yield return new WaitForSeconds(0.02f);
+        }
     }
 
     IEnumerator DebugPlanner()
@@ -193,7 +206,6 @@ public class StepGameManager : GameManager
             //    floorHeights[i] = Mathf.CeilToInt(hit.distance);
             //}
         }
-
     }
 
     private GapInfo AnalyseGap(Vector2 floorPos, int levelHeight, int chunkWidth)
@@ -324,5 +336,6 @@ public class StepGameManager : GameManager
         }
         plumber.PhysiscsStep(); // TODO does this need to happen before or after the simulation?
         Physics2D.Simulate(Time.fixedDeltaTime);
+        Physics2D.SyncTransforms();
     }
 }

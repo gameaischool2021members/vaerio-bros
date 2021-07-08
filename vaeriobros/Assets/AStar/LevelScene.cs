@@ -99,7 +99,7 @@ public class LevelScene
         Player plumber = GetPlumber();
         RestorePlumberPosition(plumber);
 
-        return plumber.ForcePhysCheckGround();
+        return plumber.ForcePhysCheckGround() && plumberYacceleration <= 0; ;
     }
 
     public void RestoreThisScene()
