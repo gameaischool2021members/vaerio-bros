@@ -9,13 +9,10 @@ using UnityEngine;
 /// </summary>
 public class LevelScene
 {
-
-
     public float plumberXposition; // mario.x in the original
     public float plumberYposition;
     public float plumberXacceleration; // I think that ist mario.xa in the original
     public float plumberYacceleration;
-    public bool plumberCanJump;
     public int plumberDamage = 0; // the damage(falling is counting as damage) that the plumber is getting (Why do we need to store this?)
 
     public LevelScene Clone()
@@ -25,7 +22,6 @@ public class LevelScene
         clonedScene.plumberYposition = this.plumberYposition;
         clonedScene.plumberXacceleration = this.plumberXacceleration;
         clonedScene.plumberYacceleration = this.plumberYacceleration;
-        clonedScene.plumberCanJump = this.plumberCanJump;
         clonedScene.plumberDamage = this.plumberDamage;
         
         
@@ -53,11 +49,7 @@ public class LevelScene
         stepGameManager.SingleStep(action);
 
         // read player back
-        this.plumberXposition = plumber.thisRigidbody.position.x;
-        this.plumberYposition = plumber.thisRigidbody.position.y;
-        this.plumberXacceleration = plumber.thisRigidbody.velocity.x;
-        this.plumberYacceleration = plumber.thisRigidbody.velocity.y;
-        this.plumberCanJump = plumber.ForcePhysCheckGround();
+        GetCurrentScene();
     }
 
     /// <summary>
@@ -70,7 +62,6 @@ public class LevelScene
     {
         // TODO
         var col = Physics2D.OverlapPoint(new Vector2(position, 0),SharedData.SolidLayers);
-
         return col == null;
     }
 
@@ -83,8 +74,21 @@ public class LevelScene
     public float gapHeight( float position)
     {
         // TODO
-        
-        return 0;
+        int roundedPosition = Mathf.RoundToInt(position);
+        StepGameManager stepGameManager = (StepGameManager)GameManager.singleton;
+
+        //Dirty fix for not going left.
+        if (position < 0f)
+        {
+            return Mathf.Infinity;
+        }
+
+        float minHeight = stepGameManager.gapData[roundedPosition].MinHeight;
+
+        Debug.Log("position" + position); 
+        Debug.Log("MinHeight" + minHeight);
+
+        return minHeight;
     }
 
     /// <summary>
@@ -92,7 +96,44 @@ public class LevelScene
     /// </summary>
     public bool PlumberMayJump()
     {
-        return plumberCanJump;
+        Player plumber = GetPlumber();
+        RestorePlumberPosition(plumber);
+
+        return plumber.ForcePhysCheckGround();
+    }
+
+    public void RestoreThisScene()
+    {
+        Player plumber = GetPlumber();
+        RestorePlumberPosition(plumber);
+    }
+
+    public void RestorePlumberPosition(Player _plumber)
+    {
+        _plumber.thisRigidbody.position = new Vector3(plumberXposition, plumberYposition, _plumber.transform.position.z);
+        _plumber.thisRigidbody.velocity = new Vector2(plumberXacceleration, plumberYacceleration);
+        _plumber.thisRigidbody.angularVelocity = 0;
+        Physics2D.SyncTransforms(); // TODO maybe move into SingleStep()
+    }
+
+    public Player GetPlumber()
+    {
+        // teleport player to position
+        StepGameManager stepGameManager = (StepGameManager)GameManager.singleton;
+        if (stepGameManager == null)
+        {
+            Debug.LogError("Wrong Game Manager");
+        }
+        return stepGameManager.plumber;
+    }
+
+    public void GetCurrentScene()
+    {
+        Player plumber = GetPlumber();
+        this.plumberXposition = plumber.thisRigidbody.position.x;
+        this.plumberYposition = plumber.thisRigidbody.position.y;
+        this.plumberXacceleration = plumber.thisRigidbody.velocity.x;
+        this.plumberYacceleration = plumber.thisRigidbody.velocity.y;
     }
 }
 

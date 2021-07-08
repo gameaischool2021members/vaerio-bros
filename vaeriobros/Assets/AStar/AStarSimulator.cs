@@ -4,9 +4,10 @@ using UnityEngine;
 
 // Simplified version of https://github.com/jumoel/mario-astar-robinbaumgarten
 
-public class AStarSimulator : MonoBehaviour
+public class AStarSimulator
 {
     public float MARIOSPEED;
+    public float MARIOHEIGHT = 1.9f;
 
     public float tickTime = 0.02f; // defined in the unity time settings
 
@@ -18,7 +19,7 @@ public class AStarSimulator : MonoBehaviour
     public SearchNode furthestPosition; // the furthest position found by the planner (sometimes different than best)
     float currentSearchStartingMarioXPos;
     List<SearchNode> posPool;		// the open-list of A*, contains all the unexplored search nodes
-    List<int[]> visitedStates = new List<int[]>(); // the closed-list of A*
+    List<float[]> visitedStates = new List<float[]>(); // the closed-list of A*
 
     public int timeBudget = 20; // ms
     public static int visitedListPenalty = 1500; // penalty for being in the visited-states list
@@ -29,112 +30,126 @@ public class AStarSimulator : MonoBehaviour
 
     static int DAMAGEPENALTY = 1000000;
     static int DAMAGEPENALTYTIMEFACTOR = 100;
-    static int maxRight = 176;                 // distance to plan to the right
+    static int maxRight = 4;                 // distance to plan to the right
+
+    // Values to measure when a node was already visited
+    // these values can be tweaked
+    // TODO dirty numbers
+    float timeDiff = 0.1f;
+    float xDiff = 0.1f;
+    float yDiff = 0.1f;
+
+    // How many actions Mario makes for each search step (can be tweaked)
+    public int stepsPerSearch = 6;
+
+    public static float maxMarioSpeed = SharedData.runSpeed;
 
     /// <summary>
     /// A SearchNode is a node in the A* search, consisting of an action, the world state using this action
 	/// and information about the parent.
     /// </summary>
 	public class SearchNode
-	{
-        // TODO what of this do we still need?
+    {
         public int timeElapsed = 0;            // How much ticks elapsed since start of search
         public float remainingTimeEstimated = 0; // Optimal (estimated) time to reach goal
         public float remainingTime = 0;        // Optimal time to reach goal AFTER simulating with the selected action
 
         public SearchNode parentPos = null;     // Parent node
-		public LevelScene sceneSnapshot = null; // World state of this node
-		public bool hasBeenHurt = false;
-		public bool isInVisitedList = false;
+        public LevelScene sceneSnapshot = null; // World state of this node
+        public bool hasBeenHurt = false;
+        public bool isInVisitedList = false;
 
-		public bool[] action;                   // the action of this node
-		public int repetitions;    // how often this action is repeat for this node
+        public bool[] action;                   // the action of this node
+        public int repetitions;    // how often this action is repeat for this node
 
         private AStarSimulator outer; // we need a referecne to the the outer class to simulate java behaviour 
 
-		public SearchNode(bool[] action, int repetitions, SearchNode parent, AStarSimulator _outer)
-		{
-			this.parentPos = parent;
-			this.action = action;
-			this.repetitions = repetitions;
+        public SearchNode(bool[] action, int repetitions, SearchNode parent, AStarSimulator _outer)
+        {
+            this.parentPos = parent;
+            this.action = action;
+            this.repetitions = repetitions;
             this.outer = _outer;
-		}
 
-		// returns the estimated remaining time to some arbitrary distant target
+            if (parent != null)
+            {
+                this.remainingTimeEstimated = parent.estimateRemainingTimeChild(action, repetitions);
+                timeElapsed = parent.timeElapsed + repetitions;
+            }
+            else
+            {
+                this.remainingTimeEstimated = calcRemainingTime(outer.levelScene.plumberXposition, 0);
+                timeElapsed = 0;
+            }
+        }
+
+        // returns the estimated remaining time to some arbitrary distant target
         // TODO is XA = X acceleration?
         // TODO dirty numbers
-		public float calcRemainingTime(float marioX, float marioXA)
-		{
-			float maxMarioSpeed = 10.9090909f;
+        public float calcRemainingTime(float marioX, float marioXA)
+        {
 
-			return (100000 - (outer.maxForwardMovement(marioXA, 1000) + marioX))
-				/ maxMarioSpeed - 1000;
-		}
+            return (100000 - (outer.maxForwardMovement(marioXA, 1000) + marioX))
+                / maxMarioSpeed - 1000;
+        }
 
-		public float getRemainingTime()
-		{
-			if (remainingTime > 0)
-				return remainingTime;
-			else
-				return remainingTimeEstimated;
-		}
+        public float getRemainingTime()
+        {
+            if (remainingTime > 0)
+                return remainingTime;
+            else
+                return remainingTimeEstimated;
+        }
 
-		// Simulate the world state after we applied the action of this node, using the parent world state
-		public float simulatePos()
-		{
-			// set state to parents scene
-			outer.levelScene = parentPos.sceneSnapshot;
-			parentPos.sceneSnapshot = outer.backupState(); // copy the parents scene since we will change this scene
+        // estimate the time remaining to the goal for a child (that uses action)
+        public float estimateRemainingTimeChild(bool[] action, int repetitions)
+        {
+            float[] childbehaviorDistanceAndSpeed = outer.estimateMaximumForwardMovement(
+                    outer.levelScene.plumberXposition, action, repetitions);
+            return calcRemainingTime(outer.levelScene.plumberXposition + childbehaviorDistanceAndSpeed[0],
+                    childbehaviorDistanceAndSpeed[1]);
+        }
 
-			int initialDamage = outer.getMarioDamage();
-			for (int i = 0; i < repetitions; i++)
-			{
-				/* This is the graphical line output, it has been disabled for the competition
-				if (debugPos < 1000)
-				{
-					GlobalOptions.Pos[debugPos][0] = (int) levelScene.mario.x;
-					GlobalOptions.Pos[debugPos][1] = (int) levelScene.mario.y;
-					debugPos++;
-				}*/
+        // Simulate the world state after we applied the action of this node, using the parent world state
+        public float simulatePos()
+        {
+            // set state to parents scene
+            outer.levelScene = parentPos.sceneSnapshot;
+            parentPos.sceneSnapshot = outer.backupState(); // copy the parents scene since we will change this scene
 
-				// Run the simulator
-				outer.advanceStep(action);
+            int initialDamage = outer.getMarioDamage();
+            for (int i = 0; i < repetitions; i++)
+            {
+
+                // Run the simulator
+                outer.advanceStep(action);
                 // TODO this ticks the levelScene so we have to find a way to tick a given level scene too.
 
-				/*if (debugPos < 1000)
-				{
-					GlobalOptions.Pos[debugPos][0] = (int) levelScene.mario.x;
-					GlobalOptions.Pos[debugPos][1] = (int) levelScene.mario.y;
-					debugPos++;
-				}
-				if (debugPos > 1000)
-					debugPos = 0;
-				*/
-			}
+            }
 
-			// set the remaining time after we've simulated the effects of our action,
-			// penalising it if we've been hurt.
-			remainingTime = calcRemainingTime(outer.levelScene.plumberXposition, outer.levelScene.plumberXacceleration)
-				 + (outer.getMarioDamage() - initialDamage) * (DAMAGEPENALTY - DAMAGEPENALTYTIMEFACTOR * timeElapsed);
-			if (isInVisitedList)
-				remainingTime += visitedListPenalty;
-			hasBeenHurt = (outer.getMarioDamage() - initialDamage) != 0;
-			sceneSnapshot = outer.backupState();
+            // set the remaining time after we've simulated the effects of our action,
+            // penalising it if we've been hurt.
+            remainingTime = calcRemainingTime(outer.levelScene.plumberXposition, outer.levelScene.plumberXacceleration)
+                 + (outer.getMarioDamage() - initialDamage) * (DAMAGEPENALTY - DAMAGEPENALTYTIMEFACTOR * timeElapsed);
+            if (isInVisitedList)
+                remainingTime += visitedListPenalty;
+            hasBeenHurt = (outer.getMarioDamage() - initialDamage) != 0;
+            sceneSnapshot = outer.backupState();
 
-			return remainingTime;
-		}
+            return remainingTime;
+        }
 
-		public List<SearchNode> generateChildren()
-		{
-			List<SearchNode> list = new List<SearchNode>();
-			List<bool[]> possibleActions = createPossibleActions(this);
+        public List<SearchNode> generateChildren()
+        {
+            List<SearchNode> list = new List<SearchNode>();
+            List<bool[]> possibleActions = createPossibleActions(this);
 
-			foreach (bool[] action in possibleActions)
-			{
-				list.Add(new SearchNode(action, repetitions, this, this.outer)); // hope this.outer works as I expect to replace the Java functionality
-			}
-			return list;
-		}
+            foreach (bool[] action in possibleActions)
+            {
+                list.Add(new SearchNode(action, repetitions, this, this.outer)); // hope this.outer works as I expect to replace the Java functionality
+            }
+            return list;
+        }
 
         // Create a list of (almost) all valid actions possible in our node
         public List<bool[]> createPossibleActions(SearchNode currentPos)
@@ -160,86 +175,48 @@ public class AStarSimulator : MonoBehaviour
     }
 
     public AStarSimulator()
-	{
-		initialiseSimulator();
-	}
+    {
+        levelScene = new LevelScene();
+        levelScene.GetCurrentScene();
+    }
 
+    // main optimisation function, this calls the A* planner and extracts and returns the optimal plan.
+    public List<bool[]> Plan()
+    {
+        LevelScene currentState = backupState();
+        if (workScene == null)
+            workScene = levelScene;
 
-	// Does the application of the jump action make any difference in the given world state?
-	// if not, we don't need to consider it for child positions of nodes
+        startSearch(stepsPerSearch);
+
+        search();
+
+        restoreState(currentState);
+
+        return extractPlan();
+    }
+
     /// <summary>
-    /// We use a simplified version that only checks wether plumber is able to jump (does he touch the ground?)
+    /// init the planner 
     /// </summary>
-    /// <param name="currentPos"></param>
-    /// <param name="checkParent"></param>
-    /// <returns></returns>
-	public bool canJumpHigher(SearchNode currentPos, bool checkParent)
-	{
-		// This is a hack to allow jumping one tick longer than required 
-		// (because we're planning two steps ahead there might be some odd situations where we might need that)
-		if (currentPos.parentPos != null && checkParent
-				&& canJumpHigher(currentPos.parentPos, false))
-			return true;
-        // return currentPos.sceneSnapshot.mario.mayJump() || (currentPos.sceneSnapshot.mario.jumpTime > 0);
-        return currentPos.sceneSnapshot.PlumberMayJump();
-	}
-
-	public static bool[] createAction(bool left, bool right, bool jump)
-	{
-		bool[] action = new bool[3];
-		// action[Mario.KEY_DOWN] = down;
-		action[(int) Actions.Jump] = jump;
-		action[(int) Actions.Left] = left;
-		action[(int) Actions.Right] = right;
-		// action[Mario.KEY_SPEED] = speed;
-		return action;
-	}
-
-    // estimate the optimal forward movement for a fixed amount of ticks, given a speed and an action
-    // This is a bit hacky
-    public float[] estimateMaximumForwardMovement(float currentAccel, bool[] action, int ticks)
+    /// <param name="repetitions"> How often an action is repeated. </param>
+    // initialise the planner
+    private void startSearch(int repetitions)
     {
-        float dist = 0;
-        // float runningSpeed = action[Mario.KEY_SPEED] ? 1.2f : 0.6f;
-        int dir = 0;
-        if (action[(int) Actions.Left]) dir = -1;
-        if (action[(int) Actions.Right]) dir = 1;
-        for (int i = 0; i < ticks; i++)
+        // if (levelScene.verbose > 1) System.out.println("Started search."); 
+        SearchNode startPos = new SearchNode(null, repetitions, null, this); // passing this AStarSimulater should emulate the java functionality of refering to outer class variables 
+        startPos.sceneSnapshot = backupState();
+
+        posPool = new List<SearchNode>();
+        visitedStates.Clear();
+        foreach (SearchNode node in startPos.generateChildren())
         {
-            // get the acceleration in the x axis
-            currentAccel = SharedData.ComputePlayerVelocity(new Vector2(currentAccel, 0), dir, 0, this.tickTime)[0];
-            dist += currentAccel;
-            // Slow down TODO incorporate our Gravity
-            currentAccel *= 0.89f;
+            posPool.Add(node);
         }
-        float[] ret = new float[2];
-        ret[0] = dist;
-        ret[1] = currentAccel;
-        return ret;
-    }
+        currentSearchStartingMarioXPos = levelScene.plumberXposition;
 
-    // distance covered at maximum acceleration with initialSpeed for ticks timesteps 
-    // this is the closed form of the above function, found using Matlab 
-    // TODO redo this completley for our engine
-    private float maxForwardMovement(float initialSpeed, int ticks)
-    {
-        float y = ticks;
-        float s0 = initialSpeed;
-        return (float)(99.17355373 * Mathf.Pow(0.89f, y + 1)
-          - 9.090909091 * s0 * Mathf.Pow(0.89f, y + 1)
-          + 10.90909091 * y - 88.26446282 + 9.090909091 * s0);
-    }
-
-    // TODO implement damage!! 
-    public int getMarioDamage()
-    {
-        // early damage at gaps: Don't even fall 1 px into them.
-        if (levelScene.isGap(levelScene.plumberXposition) &&
-                levelScene.plumberYposition > levelScene.gapHeight(levelScene.plumberXposition)) // What is gapHeight
-        {
-            levelScene.plumberDamage += 5;
-        }
-        return levelScene.plumberDamage;
+        bestPosition = startPos;
+        furthestPosition = startPos;
     }
 
     // main search function
@@ -259,6 +236,7 @@ public class AStarSimulator : MonoBehaviour
             // Pick the best node from our open list
             current = pickBestPos(posPool);
             currentGood = false; // TODO currentGood might not make sense without goombas, it seems to make sense since damage is only gaps
+            Debug.Log("Tested Action" + current.action);
 
             // Simulate the consequences of the action associated with the chosen node
             float realRemainingTime = current.simulatePos();
@@ -271,7 +249,7 @@ public class AStarSimulator : MonoBehaviour
                 continue;
             }
             else if (!current.isInVisitedList
-                    && isInVisited((int)current.sceneSnapshot.plumberXposition, (int)current.sceneSnapshot.plumberYposition, current.timeElapsed))
+                    && isInVisited(current.sceneSnapshot.plumberXposition, current.sceneSnapshot.plumberYposition, current.timeElapsed))
             {
                 // if the position & time of the node is already in the closed list
                 // (i.e., has been explored before), put some penalty on it and put it 
@@ -295,6 +273,7 @@ public class AStarSimulator : MonoBehaviour
             {
                 // accept the node, its estimated time is as good as its real time.
                 currentGood = true;
+                Debug.Log("Accepted Action:" + current.action);
 
                 // put it into the visited list 
                 // TODO apperently we are ignoring the acceleration
@@ -325,7 +304,7 @@ public class AStarSimulator : MonoBehaviour
                 && furthestPosition.sceneSnapshot.plumberXposition > bestPosition.sceneSnapshot.plumberXposition + 20
                 // && (levelScene.mario.fire ||
                 //        levelScene.level.isGap[(int)(bestPosition.sceneSnapshot.mario.x / 16)]))
-                && levelScene.isGap(bestPosition.sceneSnapshot.plumberXposition) )
+                && levelScene.isGap(bestPosition.sceneSnapshot.plumberXposition))
         {
             // Couldnt plan till end of screen, take furthest (in some situations)
             bestPosition = furthestPosition;
@@ -337,35 +316,60 @@ public class AStarSimulator : MonoBehaviour
         levelScene = current.sceneSnapshot;
     }
 
+
+    // Does the application of the jump action make any difference in the given world state?
+    // if not, we don't need to consider it for child positions of nodes
     /// <summary>
-    /// init the planner 
+    /// We use a simplified version that only checks wether plumber is able to jump (does he touch the ground?)
     /// </summary>
-    /// <param name="repetitions"> How often an action is repeated. </param>
-    // initialise the planner
-    private void startSearch(int repetitions)
+    /// <param name="currentPos"></param>
+    /// <param name="checkParent"></param>
+    /// <returns></returns>
+    public bool canJumpHigher(SearchNode currentPos, bool checkParent)
     {
-        // if (levelScene.verbose > 1) System.out.println("Started search."); 
-        SearchNode startPos = new SearchNode(null, repetitions, null, this); // passing this AStarSimulater should emulate the java functionality of refering to outer class variables 
-        startPos.sceneSnapshot = backupState();
+        // This is a hack to allow jumping one tick longer than required 
+        // (because we're planning two steps ahead there might be some odd situations where we might need that)
+        if (currentPos.parentPos != null && checkParent
+                && canJumpHigher(currentPos.parentPos, false))
+            return true;
+        // return currentPos.sceneSnapshot.mario.mayJump() || (currentPos.sceneSnapshot.mario.jumpTime > 0);
+        return currentPos.sceneSnapshot.PlumberMayJump();
+    }
 
-        posPool = new List<SearchNode>();
-        visitedStates.Clear();
-        foreach (SearchNode node in startPos.generateChildren())
+    public static bool[] createAction(bool left, bool right, bool jump)
+    {
+        bool[] action = new bool[3];
+        // action[Mario.KEY_DOWN] = down;
+        action[(int)Actions.Jump] = jump;
+        action[(int)Actions.Left] = left;
+        action[(int)Actions.Right] = right;
+        // action[Mario.KEY_SPEED] = speed;
+        return action;
+    }
+
+    // distance covered at maximum acceleration with initialSpeed for ticks timesteps 
+    // this is the closed form of the above function, found using Matlab 
+    // TODO redo this completley for our engine
+    private float maxForwardMovement(float initialSpeed, int ticks)
+    {
+        float y = ticks;
+        float s0 = initialSpeed;
+        return (float)(99.17355373 * Mathf.Pow(0.89f, y + 1)
+          - 9.090909091 * s0 * Mathf.Pow(0.89f, y + 1)
+          + 10.90909091 * y - 88.26446282 + 9.090909091 * s0);
+    }
+
+    // TODO implement damage!! 
+    public int getMarioDamage()
+    {
+        // early damage at gaps: Don't even fall 1 px into them.
+        if (levelScene.isGap(levelScene.plumberXposition) &&
+                (levelScene.plumberYposition - (MARIOHEIGHT / 2)) > levelScene.gapHeight(levelScene.plumberXposition)) // changed it to smaller since we calculate GapHeight differently, also substract hafl plumber height since the position is in the middle
         {
-            posPool.Add(node);
+            levelScene.plumberDamage += 5;
         }
-        currentSearchStartingMarioXPos = levelScene.plumberXposition;
-
-        /*
-		for(int i = 0; i < 1000; i++)
-		{
-			GlobalOptions.Pos[i][0] = 0;
-			GlobalOptions.Pos[i][1] = 0;
-		}
-    	debugPos = 0;
-    	*/
-        bestPosition = startPos;
-        furthestPosition = startPos;
+        //Debug.Log("Plumber Damage:" + levelScene.plumberDamage);
+        return levelScene.plumberDamage;
     }
 
     // Extract the plan by taking the best node and going back to the root, 
@@ -414,7 +418,7 @@ public class AStarSimulator : MonoBehaviour
     private SearchNode pickBestPos(List<SearchNode> posPool)
     {
         SearchNode bestPos = null;
-        float bestPosCost = 10000000;
+        float bestPosCost = Mathf.Infinity;
         foreach (SearchNode current in posPool)
         {
             // slightly bias towards furthest positions
@@ -430,21 +434,11 @@ public class AStarSimulator : MonoBehaviour
         return bestPos;
     }
 
-    public void initialiseSimulator()
-    {
-        // TODO we have to change this
-        levelScene = new LevelScene();
-        // levelScene.init();
-        // increase max level length here if you want to run longer levels
-        // levelScene.level = new Level(1500, 15);
-    }
-
     // make a clone of the current world state (copying marios state, all enemies, and some level information)
     // TODO we removed enemies for now
     public LevelScene backupState()
     {
-        LevelScene sceneCopy = null;
-        sceneCopy = (LevelScene)levelScene.Clone();
+        LevelScene sceneCopy = (LevelScene)levelScene.Clone();
 
         return sceneCopy;
     }
@@ -454,6 +448,7 @@ public class AStarSimulator : MonoBehaviour
     public void restoreState(LevelScene l)
     {
         levelScene = l;
+        l.RestoreThisScene();
     }
 
     public void advanceStep(bool[] action)
@@ -469,50 +464,27 @@ public class AStarSimulator : MonoBehaviour
         // TODO can we get a new Tick of mario?
     }
 
-
-    // main optimisation function, this calls the A* planner and extracts and returns the optimal action.
-    public List<bool[]> Plan()
-    {
-        LevelScene currentState = backupState();
-        if (workScene == null)
-            workScene = levelScene;
-
-        // How many actions Mario makes for each search step (can be tweaked)
-        int stepsPerSearch = 2;
-
-        startSearch(stepsPerSearch);
-
-        search();
-
-        return extractPlan();
-    }
-
     /// <summary>
     /// visited nodes, ignores acceleration
     /// </summary>
     /// <param name="x"> plumber x position</param>
     /// <param name="y"> plumber y position</param>
     /// <param name="t"> elapsed time </param>
-    private void visited(int x, int y, int t)
+    private void visited(float x, float y, float t)
     {
-        visitedStates.Add(new int[] { x, y, t });
+        visitedStates.Add(new float[] { x, y, t});
     }
 
-    private bool isInVisited(int x, int y, int t)
+    private bool isInVisited(float x, float y, int t)
     {
         // is the (x, y, time) triple too close to a triple in the visited states list?
 
-        // these values can be tweaked
-        // TODO dirty numbers
-        int timeDiff = 5;
-        int xDiff = 2;
-        int yDiff = 2;
-        foreach (int[] v in  visitedStates)
+        foreach (float[] v in visitedStates)
         {
             if (Mathf.Abs(v[0] - x) < xDiff
                     && Mathf.Abs(v[1] - y) < yDiff
                     && Mathf.Abs(v[2] - t) < timeDiff
-                    && t >= v[2])
+                    && t >= v[2]) // why do we check if the current node is furhter in time? Oh since only then it can be already visited
             {
                 return true;
             }
@@ -520,6 +492,78 @@ public class AStarSimulator : MonoBehaviour
         return false;
     }
 
+    // estimate the optimal forward movement for a fixed amount of ticks, given a speed and an action
+    // This is a bit hacky
+    public float[] estimateMaximumForwardMovement(float currentAccel, bool[] action, int ticks)
+    {
+        float dist = 0;
+        // float runningSpeed = action[Mario.KEY_SPEED] ? 1.2f : 0.6f;
+        int dir = 0;
+        if (action[(int)Actions.Left]) dir = -1;
+        if (action[(int)Actions.Right]) dir = 1;
+        for (int i = 0; i < ticks; i++)
+        {
+            // get the acceleration in the x axis
+            currentAccel = SharedData.ComputePlayerVelocity(new Vector2(currentAccel, 0), dir, 0, this.tickTime)[0];
+            dist += currentAccel;
+            // Slow down TODO incorporate our Gravity
+            currentAccel *= 0.89f;
+        }
+        float[] ret = new float[2];
+        ret[0] = dist;
+        ret[1] = currentAccel;
+        return ret;
+    }
+
+    // main optimisation function, this calls the A* planner and extracts and returns the optimal action.
+    public bool[] optimise()
+    {
+        // long startTime = System.currentTimeMillis();
+        LevelScene currentState = backupState();
+        if (workScene == null)
+            workScene = levelScene;
+
+        // How many ticks to plan ahead into the future (can be tweaked)
+        int planAhead = 2;
+
+        ticksBeforeReplanning--;
+        if (ticksBeforeReplanning <= 0 || currentActionPlan.Count == 0)
+        {
+            // We're done planning, extract the plan and prepare the planner for the
+            // next planning iteration (which starts planAhead ticks in the future)
+            currentActionPlan = extractPlan();
+            if (currentActionPlan.Count < planAhead)
+            {
+                // if (levelScene.verbose > 2) System.out.println("Warning!! currentActionPlan smaller than planAhead! plansize: " + currentActionPlan.size());
+                planAhead = currentActionPlan.Count;
+            }
+
+            // simulate ahead to predicted future state, and then plan for this future state 
+            // if (levelScene.verbose > 3) System.out.println("Advancing current state ... ");
+            for (int i = 0; i < planAhead; i++)
+            {
+                advanceStep(currentActionPlan[i]);
+            }
+            workScene = backupState();
+            startSearch(stepsPerSearch);
+            ticksBeforeReplanning = planAhead;
+        }
+        // load (future) world state used by the planner
+        restoreState(workScene);
+        search();
+        workScene = backupState();
+
+        // select the next action from our plan
+        bool[] action = new bool[3];
+        if (currentActionPlan.Count > 0)
+            action = currentActionPlan[0];
+        currentActionPlan.RemoveAt(0);
+
+        // long e = System.currentTimeMillis();
+        // if (levelScene.verbose > 0) System.out.println("Simulation took " + (e - startTime) + "ms.");
+        restoreState(currentState);
+        return action;
+    }
 
 
     /*
@@ -537,71 +581,10 @@ public class AStarSimulator : MonoBehaviour
         return s;
     }
 
-    // estimate the time remaining to the goal for a child (that uses action)
-		public float estimateRemainingTimeChild(bool[] action, int repetitions)
-		{
-			float[] childbehaviorDistanceAndSpeed = estimateMaximumForwardMovement(
-					levelScene.mario.xa, action, repetitions);
-			return calcRemainingTime(levelScene.mario.x + childbehaviorDistanceAndSpeed[0],
-					childbehaviorDistanceAndSpeed[1]);
-		}
-
     public void setLevelPart(byte[][] levelPart, float[] enemies)
     {
         levelScene.setLevelScene(levelPart);
         levelScene.setEnemies(enemies);
-    }
-
-     // main optimisation function, this calls the A* planner and extracts and returns the optimal action.
-    public bool[] optimise()
-    {
-        long startTime = System.currentTimeMillis();
-        LevelScene currentState = backupState();
-        if (workScene == null)
-            workScene = levelScene;
-
-        // How many ticks to plan ahead into the future (can be tweaked)
-        int planAhead = 2;
-
-        // How many actions Mario makes for each search step (can be tweaked)
-        int stepsPerSearch = 2;
-
-        ticksBeforeReplanning--;
-        if (ticksBeforeReplanning <= 0 || currentActionPlan.size() == 0)
-        {
-            // We're done planning, extract the plan and prepare the planner for the
-            // next planning iteration (which starts planAhead ticks in the future)
-            currentActionPlan = extractPlan();
-            if (currentActionPlan.size() < planAhead)
-            {
-                if (levelScene.verbose > 2) System.out.println("Warning!! currentActionPlan smaller than planAhead! plansize: " + currentActionPlan.size());
-                planAhead = currentActionPlan.size();
-            }
-
-            // simulate ahead to predicted future state, and then plan for this future state 
-            if (levelScene.verbose > 3) System.out.println("Advancing current state ... ");
-            for (int i = 0; i < planAhead; i++)
-            {
-                advanceStep(currentActionPlan.get(i));
-            }
-            workScene = backupState();
-            startSearch(stepsPerSearch);
-            ticksBeforeReplanning = planAhead;
-        }
-        // load (future) world state used by the planner
-        restoreState(workScene);
-        search(startTime);
-        workScene = backupState();
-
-        // select the next action from our plan
-        boolean[] action = new boolean[5];
-        if (currentActionPlan.size() > 0)
-            action = currentActionPlan.remove(0);
-
-        long e = System.currentTimeMillis();
-        if (levelScene.verbose > 0) System.out.println("Simulation took " + (e - startTime) + "ms.");
-        restoreState(currentState);
-        return action;
     }
 
     */

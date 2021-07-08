@@ -45,22 +45,40 @@ public class StepGameManager : GameManager
     {
         Physics2D.simulationMode = SimulationMode2D.Script;
 
-        StartCoroutine(DebugPlanner());
+        // StartCoroutine(DebugPlanner());
+        StartCoroutine(Solve());
     }
 
 
-
-    void RunPlan(List<bool[]> actions)
+    /// <summary>
+    /// run the plan. Repetitions is the number of steps we repeated during planning
+    /// </summary>
+    /// <param name="actions"></param>
+    /// <param name="repetitions"></param>
+    /// <returns></returns>
+    IEnumerator RunPlan(List<bool[]> actions, int repetitions)
     {
         foreach (bool[] action in actions)
         {
-            SingleStep(action);
+            for (int i = 0; i < 5; i++)
+            {
+                yield return new WaitForSeconds(0.02f);
+                SingleStep(action);
+            }
         }
     }
 
     protected override void OnStart()
     {
         StartCoroutine(RunSimulation());
+    }
+
+    IEnumerator Solve()
+    {
+        AStarSimulator simulator = new AStarSimulator();
+        List<bool[]> actions = simulator.Plan();
+        StartCoroutine(RunPlan(actions, simulator.stepsPerSearch));
+        yield return new WaitForSeconds(2f);
     }
 
     IEnumerator DebugPlanner()
@@ -79,7 +97,7 @@ public class StepGameManager : GameManager
         {
             actions.Add(AStarSimulator.createAction(false, true, true));
         }
-        RunPlan(actions);
+        StartCoroutine(RunPlan(actions, 1));
 
         yield return new WaitForSeconds(2f);
 
@@ -146,7 +164,7 @@ public class StepGameManager : GameManager
         for (int i = 0; i < procLevel.LevelWidth; i++)
         {
             Vector2 floorPos = new Vector2(i, 0);
-            Vector2 ceilingPos = new Vector2(i, procLevel.LevelHeight);
+            // Vector2 ceilingPos = new Vector2(i, procLevel.LevelHeight);
 
             // check occupancy
             var obs = Physics2D.OverlapPoint(floorPos, SharedData.SolidLayers);
@@ -155,19 +173,25 @@ public class StepGameManager : GameManager
                 floorHeights[i] = 0;
                 continue;
             }
-            // linecast upwards
-            var hit = Physics2D.Linecast(floorPos, ceilingPos, SharedData.SolidLayers);
-            // only measure a "gap" if there is no ceiling
-            if (hit.collider == null)
+            else
             {
                 floorHeights[i] = -1;
                 gapData[i] = AnalyseGap(floorPos, procLevel.LevelHeight, procLevel.ChunkWidth);
-                Debug.Log("Gap at " + floorPos + " = " + gapData[i]);
+                // Debug.Log("Gap at " + floorPos + " = " + gapData[i]);
             }
-            else
-            {
-                floorHeights[i] = Mathf.CeilToInt(hit.distance);
-            }
+            //// linecast upwards
+            //var hit = Physics2D.Linecast(floorPos, ceilingPos, SharedData.SolidLayers);
+            //// only measure a "gap" if there is no ceiling
+            //if (hit.collider == null)
+            //{
+            //    floorHeights[i] = -1;
+            //    gapData[i] = AnalyseGap(floorPos, procLevel.LevelHeight, procLevel.ChunkWidth);
+            //    Debug.Log("Gap at " + floorPos + " = " + gapData[i]);
+            //}
+            //else
+            //{
+            //    floorHeights[i] = Mathf.CeilToInt(hit.distance);
+            //}
         }
 
     }
