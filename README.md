@@ -20,10 +20,5 @@ https://www.youtube.com/watch?v=0jhuVwBHYJM
 - [Rishabh Chakrabarty](https://notrishabh.co)
 - [Miguel Gonzalez-Duque](https://www.miguelgondu.com/about/)
 
-## Presentation Video: 
-
-![VAErio_Bros_Presentation](documentation/vaerio-bros-video.mkv)
-
-
 ## A Level (using WIP Mario engine)
 ![VAErio Bros Visualised Level](documentation/vaerio.png)
