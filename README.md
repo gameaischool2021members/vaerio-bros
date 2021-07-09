@@ -5,7 +5,7 @@
 
 
 ## Project Video
-![documentation/system_architecture.png](https://www.youtube.com/watch?v=0jhuVwBHYJM)
+![Youtube](https://www.youtube.com/watch?v=0jhuVwBHYJM)
 
 [github copy](https://github.com/gameaischool2021members/vaerio-bros/blob/main/documentation/vaerio-bros-video.mkv)
 
