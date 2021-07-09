@@ -20,5 +20,5 @@
 - [Rishabh Chakrabarty](https://notrishabh.co)
 - [Miguel Gonzalez-Duque](https://www.miguelgondu.com/about/)
 
-## A Level
+## A Generated Level
 ![VAErio Bros Visualised Level](documentation/vaerio.png)
