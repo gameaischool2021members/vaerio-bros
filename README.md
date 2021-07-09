@@ -19,7 +19,7 @@
 - [Dr. Sebastian Deterding](https://www.linkedin.com/in/sebastiandeterding)
 - [Arash Moradi](https://twitter.com/arashdeclares)
 - [Rishabh Chakrabarty](https://notrishabh.co)
-- [Miguel Gonzalez-Duque](https://www.miguelgondu.com/about/)
+- [Miguel González-Duque](https://www.miguelgondu.com/about/)
 
 ## A Generated Level
 ![VAErio Bros Visualised Level](documentation/vaerio.png)
