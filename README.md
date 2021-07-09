@@ -1,7 +1,7 @@
 # VAErio-Bros
 
 ## Summary
-![VAErio Bros System Architecture](documentation/system_architecture.png)
+[VAErio Bros System Architecture](documentation/system_architecture.png)
 
 
 ## Project Video
@@ -14,7 +14,7 @@ https://www.youtube.com/watch?v=0jhuVwBHYJM
 - [Daniel Harborne](https://www.linkedin.com/in/daniel-harborne/)
 - James Adey
 - Luis Andres Equiarte-Morett
-- [Tobias Huber](https://www.uni-augsburg.de/de/fakultaet/fai/informatik/prof/hcm/team/tobias-huber/)
+- [Tobias Huber](https://www.uni-augsburg.de/en/fakultaet/fai/informatik/prof/hcm/team/tobias-huber/)
 - Dr. Sebastian Deterding
 - Arash Moradi
 - Rishabh Chakrabarty
