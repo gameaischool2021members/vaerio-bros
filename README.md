@@ -1,7 +1,7 @@
 # VAErio-Bros
 
 ## Summary
-!(documentation/system_architecture.png)
+![VAErio Bros System Architecture](documentation/system_architecture.png)
 
 
 ## Project Video
