@@ -3,14 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 
 // Simplified version of https://github.com/jumoel/mario-astar-robinbaumgarten
+// mainly we ignore enemies and our level scene does not have breakable blocks
 
 public class AStarSimulator
 {
-    public float MARIOSPEED;
-    public float MARIOHEIGHT = 1.6f;
-
-    public float tickTime = 0.02f; // defined in the unity time settings
-
     // LevelScene objects store all the information about the environment,
     // Mario and enemies. 
     private LevelScene levelScene;  		// current world state
@@ -29,14 +25,15 @@ public class AStarSimulator
 
     int ticksBeforeReplanning = 0;
 
-
+    // tuneable parameter for penalising the plumber for falling in gaps
     static int DAMAGEPENALTY = 1000000;
+    // this makes the plumber less afraid of falling the longer it is planning
     static int DAMAGEPENALTYTIMEFACTOR = 100;
+    
     static int maxRight = 30;                 // distance to plan to the right
 
     // Values to measure when a node was already visited
     // these values can be tweaked
-    // TODO dirty numbers
     float timeDiff = 0.1f;
     float xDiff = 0.1f;
     float yDiff = 0.1f;
@@ -50,7 +47,12 @@ public class AStarSimulator
     // The maximum number of ticks we plan before moving.
     public int planningTicks = 300;
 
+    // how fast the plumber is running
     public static float maxMarioSpeed = SharedData.runSpeed;
+    // the height of the plumber collider
+    public float MARIOHEIGHT = 1.6f;
+    // defined in the unity time settings
+    public float tickTime = 0.02f; 
 
     /// <summary>
     /// A SearchNode is a node in the A* search, consisting of an action, the world state using this action
@@ -92,8 +94,6 @@ public class AStarSimulator
         }
 
         // returns the estimated remaining time to some arbitrary distant target
-        // TODO is XA = X acceleration?
-        // TODO dirty numbers
         public float calcRemainingTime(float marioX, float marioXA)
         {
 
@@ -131,7 +131,6 @@ public class AStarSimulator
 
                 // Run the simulator
                 outer.advanceStep(action);
-                // TODO this ticks the levelScene so we have to find a way to tick a given level scene too.
 
             }
 
@@ -244,7 +243,7 @@ public class AStarSimulator
 
             // Pick the best node from our open list
             current = pickBestPos(posPool);
-            currentGood = false; // TODO currentGood might not make sense without goombas, it seems to make sense since damage is only gaps
+            currentGood = false; 
 
             // Simulate the consequences of the action associated with the chosen node
             float realRemainingTime = current.simulatePos();
@@ -283,7 +282,7 @@ public class AStarSimulator
                 currentGood = true;
 
                 // put it into the visited list 
-                // TODO apperently we are ignoring the acceleration
+                // the acceleration is ignored
                 visited((int)current.sceneSnapshot.plumberXposition, (int)current.sceneSnapshot.plumberYposition, current.timeElapsed);
 
                 // put all children into the open list
@@ -306,21 +305,16 @@ public class AStarSimulator
                     furthestPosition = current;
             }
         }
-        // TODO dirty number
+
         if (levelScene.plumberXposition - currentSearchStartingMarioXPos < maxRight
                 && furthestPosition.sceneSnapshot.plumberXposition > bestPosition.sceneSnapshot.plumberXposition + 20
                 // && (levelScene.mario.fire ||
-                //        levelScene.level.isGap[(int)(bestPosition.sceneSnapshot.mario.x / 16)]))
                 && levelScene.isGap(bestPosition.sceneSnapshot.plumberXposition, bestPosition.sceneSnapshot.plumberXposition))
         {
             // Couldnt plan till end of screen, take furthest (in some situations)
             bestPosition = furthestPosition;
         }
 
-        // TODO verbose ???
-        // if (levelScene.verbose > 1) System.out.println("Search stopped. Remaining pool size: " + posPool.size() + " Current remaining time: " + current.remainingTime);
-
-        Debug.Log("Ticks:" + ticks);
         levelScene = current.sceneSnapshot;
     }
 
@@ -357,7 +351,7 @@ public class AStarSimulator
 
     // distance covered at maximum acceleration with initialSpeed for ticks timesteps 
     // this is the closed form of the above function, found using Matlab 
-    // TODO redo this completley for our engine
+    // TODO This is the original heuristic by Baumgarten, adjusting this to our engine might improve preformance.
     private float maxForwardMovement(float initialSpeed, int ticks)
     {
         float y = ticks;
@@ -367,7 +361,6 @@ public class AStarSimulator
           + 10.90909091 * y - 88.26446282 + 9.090909091 * s0);
     }
 
-    // TODO implement damage!! 
     public int getMarioDamage()
     {
         // early damage at gaps: Don't even fall 1 px into them.
@@ -376,7 +369,6 @@ public class AStarSimulator
         {
             levelScene.plumberDamage += 5;
         }
-        //Debug.Log("Plumber Damage:" + levelScene.plumberDamage);
         return levelScene.plumberDamage;
     }
 
@@ -429,8 +421,8 @@ public class AStarSimulator
         return bestPos;
     }
 
-    // make a clone of the current world state (copying marios state, all enemies, and some level information)
-    // TODO we removed enemies for now
+    // make a clone of the current world state (copying plumbers state mostly)
+    // if we would want to include enemies and breakable blocks they would also have to be stored here.
     public LevelScene backupState()
     {
         LevelScene sceneCopy = (LevelScene)levelScene.Clone();
@@ -493,7 +485,7 @@ public class AStarSimulator
             // get the acceleration in the x axis
             currentAccel = SharedData.ComputePlayerVelocity(new Vector2(currentAccel, 0), dir, 0, this.tickTime)[0];
             dist += currentAccel;
-            // Slow down TODO incorporate our Gravity
+            // Slow down (TODO might be improved by modelling our gravity more closely)
             currentAccel *= 0.89f;
         }
         float[] ret = new float[2];
