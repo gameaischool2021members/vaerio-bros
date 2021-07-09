@@ -18,7 +18,7 @@ https://www.youtube.com/watch?v=0jhuVwBHYJM
 - Dr. Sebastian Deterding
 - Arash Moradi
 - Rishabh Chakrabarty
-- Miguel Gonzalez-Duque
+- [Miguel Gonzalez-Duque](https://www.miguelgondu.com/about/)
 
 ## Presentation Video: 
 
