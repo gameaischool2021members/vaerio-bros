@@ -17,7 +17,7 @@ https://www.youtube.com/watch?v=0jhuVwBHYJM
 - [Tobias Huber](https://www.uni-augsburg.de/en/fakultaet/fai/informatik/prof/hcm/team/tobias-huber/)
 - Dr. Sebastian Deterding
 - Arash Moradi
-- Rishabh Chakrabarty
+- [Rishabh Chakrabarty](https://notrishabh.co)
 - [Miguel Gonzalez-Duque](https://www.miguelgondu.com/about/)
 
 ## Presentation Video: 
