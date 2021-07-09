@@ -11,7 +11,7 @@
 
 ## Project Members
 - [Daniel Harborne](https://www.linkedin.com/in/daniel-harborne/)
-- James Adey
+- [James Adey](https://www.linkedin.com/in/james-adey-1b5196217/)
 - [Luis Andres Equiarte-Morett](https://www.linkedin.com/in/luis-andr%C3%A9s-eguiarte-morett-695965121/)
 - [Tobias Huber](https://www.uni-augsburg.de/en/fakultaet/fai/informatik/prof/hcm/team/tobias-huber/)
 - [Dr. Sebastian Deterding](https://www.linkedin.com/in/sebastiandeterding)
