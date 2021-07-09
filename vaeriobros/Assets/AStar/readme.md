@@ -10,4 +10,4 @@ This folder contains our simplified implementation of the Mario A* solver by Rob
 
 ## The A* algorithm solving a level
 
-![AStar_solving_a_level](vaeriobros/Assets/AStar/Astar_solving.gif)
+![AStar_solving_a_level](Astar_solving.gif)
