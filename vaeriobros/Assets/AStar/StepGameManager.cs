@@ -31,9 +31,13 @@ public class StepGameManager : GameManager
     string debugLevel = "[[[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,5,2,2,2,2,2,2,2,2,2,2,2],[2,6,7,2,2,2,2,2,2,2,5,2,2,2],[2,8,9,2,2,2,2,2,2,6,7,2,2,2],[2,8,9,2,2,2,2,2,2,8,9,2,2,2],[0,0,0,0,0,0,0,0,0,0,0,0,0,0]],[[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[1,1,1,1,1,1,1,1,1,1,1,1,1,1],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,5,2],[2,2,2,2,2,2,2,2,2,2,2,6,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,9,2],[2,2,2,2,2,2,2,2,2,2,2,8,5,2],[2,2,2,2,2,2,2,2,5,2,2,6,7,2],[2,5,2,2,2,2,2,6,7,2,2,8,9,2],[2,7,2,2,2,2,2,8,9,2,2,8,9,2],[2,9,2,2,2,2,2,8,9,2,2,8,9,2],[0,0,0,0,0,0,0,0,0,0,0,0,0,0]],[[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,5,2,2,2,2,2,2,2,2,2,2,2],[2,2,0,0,0,0,0,0,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[0,0,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,0]],[[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,0,0,0,2,2,2,2,2],[2,2,2,2,2,2,0,0,0,2,2,2,2,2],[2,2,2,2,0,0,0,0,0,2,2,2,2,2],[2,2,2,0,0,0,0,0,0,2,2,2,2,2],[2,2,0,0,0,0,0,0,0,2,2,2,2,2],[2,0,0,0,0,0,0,0,0,2,2,2,2,2],[0,0,0,0,0,0,0,0,0,2,2,2,2,2],[0,0,0,0,0,0,0,0,2,2,2,2,2,2],[0,0,0,0,0,0,0,0,0,0,0,0,0,0]],[[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,1,1,1,1,1,2,2,2],[2,2,2,2,0,0,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2],[2,2,0,0,2,0,0,0,0,0,2,2,2,2]]]";
 
 
-    [SerializeField] bool showGapDebug = true;
+    [SerializeField] bool showGapDebug = false;
     public GapInfo[] gapData = null;
     public float[] floorHeights = null;
+
+    public List<Vector2> currentPlan; // the current plan positions for Drawing Gizmos
+
+    public float speedup = 1;
 
 
     protected override void ProcessGameEnd(EndReason reason)
@@ -74,20 +78,13 @@ public class StepGameManager : GameManager
         StartCoroutine(RunSimulation());
     }
 
-    IEnumerator Solve()
-    {
-        AStarSimulator simulator = new AStarSimulator();
-        List<bool[]> actions = simulator.Plan();
-        StartCoroutine(RunPlan(actions, simulator.stepsPerSearch));
-        yield return new WaitForSeconds(2f);
-    }
-
     IEnumerator Optimize()
     {
         AStarSimulator simulator = new AStarSimulator();
         while (true)
         {
             bool[] action = simulator.optimise();
+            currentPlan = simulator.currentPlanPositions;
             // bool[] action = AStarSimulator.createAction(false, true, false);
             SingleStep(action);
             yield return new WaitForSeconds(0.02f);
@@ -119,55 +116,62 @@ public class StepGameManager : GameManager
 
     public void OnDrawGizmos()
     {
-        if (!showGapDebug)
+        Gizmos.color = new Color(1, 0, 0, 1f);
+        foreach (Vector2 planPosition in currentPlan)
         {
-            return;
+            Gizmos.DrawSphere(planPosition, 0.2f);
         }
-        if (gapData == null)
-        {
-            return;
-        }
-        Gizmos.color = new Color(0, 1, 0, 0.5f);
 
-        for (int i = 0; i < gapData.Length; i++)
+        /* the bool is not working for me
+        if (showGapDebug)
         {
-            var gap = gapData[i];
-            if (gap.MaxHeight > 0)
+            if (gapData == null)
             {
-                var center = new Vector3(i, -0.5f + gap.MinHeight / 2, 0);
-                var size = new Vector3(1, gap.MinHeight, 0.1f);
-                Gizmos.DrawCube(center, size);
+                return;
+            }
+            Gizmos.color = new Color(0, 1, 0, 0.5f);
+
+            for (int i = 0; i < gapData.Length; i++)
+            {
+                var gap = gapData[i];
+                if (gap.MaxHeight > 0)
+                {
+                    var center = new Vector3(i, -0.5f + gap.MinHeight / 2, 0);
+                    var size = new Vector3(1, gap.MinHeight, 0.1f);
+                    Gizmos.DrawCube(center, size);
+                }
+            }
+
+            Gizmos.color = new Color(0, 0, 1, 0.5f);
+            for (int i = 0; i < gapData.Length; i++)
+            {
+                var gap = gapData[i];
+                if (gap.MaxHeight > 0)
+                {
+                    var center = new Vector3(i, -0.5f + gap.MaxHeight / 2, 0);
+                    var size = new Vector3(1, gap.MaxHeight, 0.1f);
+                    Gizmos.DrawCube(center, size);
+                }
+            }
+
+            if (floorHeights == null)
+            {
+                return;
+            }
+
+            Gizmos.color = new Color(1, 0, 0, 0.5f);
+            for (int i = 0; i < floorHeights.Length; i++)
+            {
+                var height = floorHeights[i];
+                if (height > 0)
+                {
+                    var center = new Vector3(i, -0.5f + height / 2, 0);
+                    var size = new Vector3(1, height, 0.1f);
+                    Gizmos.DrawCube(center, size);
+                }
             }
         }
-
-        Gizmos.color = new Color(0, 0, 1, 0.5f);
-        for (int i = 0; i < gapData.Length; i++)
-        {
-            var gap = gapData[i];
-            if (gap.MaxHeight > 0)
-            {
-                var center = new Vector3(i, -0.5f + gap.MaxHeight / 2, 0);
-                var size = new Vector3(1, gap.MaxHeight, 0.1f);
-                Gizmos.DrawCube(center, size);
-            }
-        }
-
-        if(floorHeights == null)
-        {
-            return;
-        }
-
-        Gizmos.color = new Color(1, 0, 0, 0.5f);
-        for (int i = 0; i < floorHeights.Length; i++)
-        {
-            var height = floorHeights[i];
-            if(height > 0)
-            {
-                var center = new Vector3(i, -0.5f + height / 2, 0);
-                var size = new Vector3(1, height, 0.1f);
-                Gizmos.DrawCube(center, size);
-            }
-        }
+        */
     }
 
     public void AnalyseLevel()
@@ -335,7 +339,7 @@ public class StepGameManager : GameManager
             plumber.jumpInput = 1;
         }
         plumber.PhysiscsStep(); // TODO does this need to happen before or after the simulation?
-        Physics2D.Simulate(Time.fixedDeltaTime);
+        Physics2D.Simulate(speedup * Time.fixedDeltaTime);
         Physics2D.SyncTransforms();
     }
 }

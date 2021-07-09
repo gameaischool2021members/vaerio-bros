@@ -68,6 +68,11 @@ public class LevelScene
         {
             return true;
         }
+        // Dirty fix for going right.
+        if (roundedPosition >= stepGameManager.floorHeights.Length)
+        {
+            return true;
+        }
 
         float floorHeight = stepGameManager.floorHeights[roundedPosition];
 
@@ -90,6 +95,11 @@ public class LevelScene
 
         //Dirty fix for not going left.
         if (position < 0f)
+        {
+            return Mathf.Infinity;
+        }
+        // Dirty fix for going right.
+        if (roundedPosition >= stepGameManager.floorHeights.Length)
         {
             return Mathf.Infinity;
         }
