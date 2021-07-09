@@ -16,7 +16,7 @@ https://www.youtube.com/watch?v=0jhuVwBHYJM
 - Luis Andres Equiarte-Morett
 - [Tobias Huber](https://www.uni-augsburg.de/en/fakultaet/fai/informatik/prof/hcm/team/tobias-huber/)
 - Dr. Sebastian Deterding
-- Arash Moradi
+- [Arash Moradi](https://twitter.com/arashdeclares)
 - [Rishabh Chakrabarty](https://notrishabh.co)
 - [Miguel Gonzalez-Duque](https://www.miguelgondu.com/about/)
 
