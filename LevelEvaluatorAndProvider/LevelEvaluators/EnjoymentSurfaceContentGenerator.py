@@ -316,6 +316,9 @@ class EnjoymentSurfaceContentGenerator():
             resp = requests.get(dataset_url)
             feedbacks_json = resp.json()
 
+            # filter to friday morning (to remove all test data)
+            feedbacks_json = [feedback_json for feedback_json in feedbacks_json["feedbackItems"] if feedback_json["timestamp"] >= 1625817219]
+
             for feedback_json in feedbacks_json["feedbackItems"]:
                 for latent_vector in feedback_json["latent_vectors"]:
                     self.UpdateSurfaceWithLatentSpaceLocation(latent_vector, feedback_json["enjoyment"]-half_feedback_max/half_feedback_max)
