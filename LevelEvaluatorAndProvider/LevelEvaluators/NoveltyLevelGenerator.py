@@ -5,7 +5,7 @@ from .LevelSliceClient import GetLevelSlicesForVectors
 from Generators.GALevelGenerator import GeneticAlgorithm
 from .RealProblem import MarioLevels, MarioLevel
 
-
+#TODO: Evolve offline, serve best generation online
 class NoveltyLevelGenerator():
     def __init__(self):
         self.name = "Novelty-Search based Level Generator"
