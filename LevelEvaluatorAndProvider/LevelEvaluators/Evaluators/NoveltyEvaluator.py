@@ -1,8 +1,56 @@
+"""
+Novelty search.
+General implementation of the Novelty-Search algorithm used to give a novelty score 
+as a fitness score in order to drive the selection pressure on an evolutionary algorithm.
+Based on the Novelty-Search algorithm found in here: https://github.com/PacktPublishing/Hands-on-Neuroevolution-with-Python/tree/master/Chapter6
+Author: Luis Andrés Eguiarte-Morett (Github: @leguiart)
+License: MIT.
+"""
 import numpy as np
 import copy
 
 class NoveltyEvaluator:
+    """
+    Base class for all problems codified with real number vectors.
+    ...
+
+    Attributes
+    ----------
+    distance_metric : function
+        Function which defines a way to measure a distance
+    novelty_threshold : float
+        Novelty score dynamic threshold for entrance to novelty archive
+    novelty_floor : float
+        Lower bound of the novelty threshold
+    min_novelty_archive_size : int
+        Novelty archive must have at least this number of individuals
+    k_neighbors : tuple (float, float)
+        K nearest neighbors to compute average distance to in order to get a novelty score
+    max_novelty_archive_size : int
+        Novelty archive can have at most this number of individuals
+
+    Methods
+    -------
+    evaluate(artifacts)
+        Evaluates the novelty of each artifact in a list of artifacts
+    """
     def __init__(self, distance_metric, novelty_threshold = 30., novelty_floor = .25, min_novelty_archive_size = 1, k_neighbors = 20, max_novelty_archive_size = None, max_iter = 100):
+        """
+        Parameters
+        ----------
+        distance_metric : function
+            Function which defines a way to measure a distance
+        novelty_threshold : float, optional
+            Novelty score dynamic threshold for entrance to novelty archive (default is 30)
+        novelty_floor : float, optional
+            Lower bound of the novelty threshold (default is 0.25)
+        min_novelty_archive_size : int, optional (default is 1)
+            Novelty archive must have at least this number of individuals
+        k_neighbors : int, optional (default is 20)
+            K nearest neighbors to compute average distance to in order to get a novelty score
+        max_novelty_archive_size : int, optional (default is None)
+            Novelty archive can have at most this number of individuals
+        """        
         self.novelty_threshold = novelty_threshold
         self.novelty_floor = novelty_floor
         self.min_novelty_archive_size = min_novelty_archive_size
@@ -16,19 +64,23 @@ class NoveltyEvaluator:
         self.distance_metric = distance_metric
 
     def evaluate(self, artifacts):
-        artifacts_copy = copy.deepcopy(artifacts)
+        """Evaluates the novelty of each artifact in a list of artifacts according to the Novelty-Search algorithm
+        artifacts : list
+            List of artifact objects which contain a fitness metric and a genotype
+        """
+        artifacts_copy = artifacts.copy()
         for i in range(len(artifacts)):
-            # print(artifacts[i].level_representation)
             artifacts[i].fitness_metric = self._average_knn_distance(artifacts[i], artifacts_copy)
             if(artifacts[i].fitness_metric > self.novelty_threshold or len(self.novelty_archive) < self.min_novelty_archive_size):
                 self.items_added_in_generation+=1
                 self.novelty_archive += [artifacts[i]]
                 if not self.max_novelty_archive_size is None and len(self.novelty_archive) > self.max_novelty_archive_size:
-                    self.items_added_in_generation+=1
-        self.adjust_archive_settings()
+                    self.novelty_archive.sort(key = lambda x : x.fitness_metric)
+                    self.novelty_archive.pop(0)
+        self._adjust_archive_settings()
         return artifacts
     
-    def adjust_archive_settings(self):
+    def _adjust_archive_settings(self):
         if self.items_added_in_generation == 0:
             self.time_out+=1
         else:
@@ -48,7 +100,6 @@ class NoveltyEvaluator:
         for novel in self.novelty_archive:
             distances += [self.distance_metric(artifact,novel)]
         distances.sort()
-        # print(distances)
         if len(distances) < self.k_neighbors:
             average_knn_dist = np.average(distances)
         else:
