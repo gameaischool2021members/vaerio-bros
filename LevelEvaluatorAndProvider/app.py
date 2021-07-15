@@ -10,7 +10,7 @@ from db_interface import PlayerFeedbackTable
 
 from LevelEvaluators.RandomLevelGenerator import RandomLevelGenerator
 from LevelEvaluators.EnjoymentSurfaceContentGenerator import EnjoymentSurfaceContentGenerator 
-
+from LevelEvaluators.NoveltyLevelGenerator import NoveltyLevelGenerator 
 
 app = Flask(__name__)
 CORS(app)
@@ -18,10 +18,12 @@ CORS(app)
 
 random_model = RandomLevelGenerator()
 surfaceModel = EnjoymentSurfaceContentGenerator()
+noveltyModel = NoveltyLevelGenerator()
 
 level_generators = {
     random_model.name: random_model,
     surfaceModel.name: surfaceModel,
+    noveltyModel.name: noveltyModel
 }
 
 max_player_memory = 2
@@ -94,6 +96,8 @@ def SelectModelForPlayer(player_request):
             pass
     else:
         player_lookup[player_request["playerId"]] = random.choice(list(level_generators.keys()))
+        #player_lookup[player_request["playerId"]] = "Random Level Generator"
+        #player_lookup[player_request["playerId"]] = "Novelty-Search based Level Generator" 
         
     player_queue.append(player_request["playerId"])
 
