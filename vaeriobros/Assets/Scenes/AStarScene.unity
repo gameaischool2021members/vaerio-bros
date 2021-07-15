@@ -261,6 +261,10 @@ PrefabInstance:
       value: StepGameManager
       objectReference: {fileID: 0}
     - target: {fileID: 5732688751847412554, guid: c97df025bf45ca047bdff0b475fe9021, type: 3}
+      propertyPath: speedup
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 5732688751847412554, guid: c97df025bf45ca047bdff0b475fe9021, type: 3}
       propertyPath: followCam
       value: 
       objectReference: {fileID: 1874404238}

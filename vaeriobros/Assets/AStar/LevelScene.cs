@@ -34,7 +34,7 @@ public class LevelScene
     /// </summary>
     public void Tick(bool[] action)
     {
-        // teleport player to position
+        // teleport plumber to position
         StepGameManager stepGameManager = (StepGameManager)GameManager.singleton;
         if (stepGameManager == null)
         {
@@ -44,11 +44,11 @@ public class LevelScene
         plumber.thisRigidbody.position = new Vector3(plumberXposition, plumberYposition, plumber.transform.position.z);
         plumber.thisRigidbody.velocity = new Vector2(plumberXacceleration, plumberYacceleration);
         plumber.thisRigidbody.angularVelocity = 0;
-        Physics2D.SyncTransforms(); // TODO maybe move into SingleStep()
+        Physics2D.SyncTransforms(); 
 
         stepGameManager.SingleStep(action);
 
-        // read player back
+        // read the plumber information from the new scenes
         GetCurrentScene();
     }
 
@@ -89,7 +89,6 @@ public class LevelScene
     /// <returns></returns>
     public float gapHeight( float position)
     {
-        // TODO
         int roundedPosition = Mathf.RoundToInt(position);
         StepGameManager stepGameManager = (StepGameManager)GameManager.singleton;
 
@@ -105,9 +104,6 @@ public class LevelScene
         }
 
         float minHeight = stepGameManager.gapData[roundedPosition].MinHeight;
-
-        Debug.Log("position" + position); 
-        Debug.Log("MinHeight" + minHeight);
 
         return minHeight;
     }
@@ -134,7 +130,7 @@ public class LevelScene
         _plumber.thisRigidbody.position = new Vector3(plumberXposition, plumberYposition, _plumber.transform.position.z);
         _plumber.thisRigidbody.velocity = new Vector2(plumberXacceleration, plumberYacceleration);
         _plumber.thisRigidbody.angularVelocity = 0;
-        Physics2D.SyncTransforms(); // TODO maybe move into SingleStep()
+        Physics2D.SyncTransforms();
     }
 
     public Player GetPlumber()
