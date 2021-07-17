@@ -186,16 +186,16 @@ class MarioLevel:
 
 
 class MarioLevels(_BaseRealProblem):
-    def __init__(self, thresh, bounds, rang_param, n_dim, experiment_name, generator_model_to_use, analytics = None):
-        self.evaluator = NoveltyEvaluator(self._simple_edit_distance, novelty_threshold=0.8)
+    def __init__(self, thresh, bounds, rang_param, n_dim, experiment_name, generator_model_to_use):
+        self.evaluator = NoveltyEvaluator(self._simple_edit_distance, novelty_threshold=.85)
         super().__init__(self.evaluator, thresh, bounds, rang_param=rang_param, n_dim=n_dim)  
         self.experiment_name = experiment_name
         self.generator_model_to_use = generator_model_to_use
-        self.analytics = analytics
-        if self.analytics is not None:
-            self.analytics["latent_vectors"] = []
-            self.analytics["level_representations"] = []
-            self.analytics["fitness"] = []
+        self.analytics = dict()
+        self.analytics["latent_vectors"] = []
+        self.analytics["level_representations"] = []
+        self.analytics["fitness"] = []
+        self.analytics["novelty_archive"] = []
         
 
     def _simple_edit_distance(self, X, Y):
@@ -291,10 +291,43 @@ class MarioLevels(_BaseRealProblem):
                     slice_list_rep+=[row]
                 list_level_representation+=[slice_list_rep]
             list_of_levels.append(list_level_representation)
-
+        
         self.analytics["latent_vectors"] += [list_of_latent_vectors]
         self.analytics["level_representations"] += [list_of_levels]
         self.analytics["fitness"]+=[fitness_metrics]
+        list_of_latent_vectors_archive = []
+        list_of_levels_archive = []
+        fitness_metrics_archive = [individual.fitness_metric for individual in self.evaluator.novelty_archive]
+        for x in self.evaluator.novelty_archive:
+            lvl_latent_vectors = []
+            li = []
+            for i, x_i in enumerate(x.latent_vector, start=1):
+                li += [x_i]
+                if i % 2 == 0:
+                    lvl_latent_vectors.append(li)
+                    li = []
+            list_of_latent_vectors_archive.append(lvl_latent_vectors)
+
+            list_level_representation = []
+            n = 14
+            s = 5
+            for slice_i in range(s):
+                slice = x.level_representation[:,slice_i*n:(slice_i + 1)*n]
+                slice_list_rep = []
+                for i in range(len(slice)):
+                    row = []
+                    for j in range(len(slice[i])):
+                        row+=[int(slice[i][j])]
+                    slice_list_rep+=[row]
+                list_level_representation+=[slice_list_rep]
+            list_of_levels_archive.append(list_level_representation)
+        novelty_archive_dict = {"latent_vectors":list_of_latent_vectors_archive, 
+                                "level_representations":list_of_levels_archive,
+                                "fitness":fitness_metrics_archive}
+        self.analytics["novelty_archive"]+=[novelty_archive_dict]
+
+
+
         
 
 

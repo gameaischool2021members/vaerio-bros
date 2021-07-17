@@ -34,7 +34,7 @@ class NoveltyEvaluator:
     evaluate(artifacts)
         Evaluates the novelty of each artifact in a list of artifacts
     """
-    def __init__(self, distance_metric, novelty_threshold = 30., novelty_floor = .25, min_novelty_archive_size = 1, k_neighbors = 20, max_novelty_archive_size = None, max_iter = 100):
+    def __init__(self, distance_metric, novelty_threshold = 30., novelty_floor = .25, min_novelty_archive_size = 1, k_neighbors = 5, max_novelty_archive_size = None, max_iter = 100):
         """
         Parameters
         ----------

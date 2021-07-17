@@ -86,6 +86,8 @@ class GeneticAlgorithm:
             self.pop = problem.mutate(self.pop, self.pm, self.elitism_num)
             self.pop = self._select(problem, self.pop)
             its+=1
+        #Return last individual of the population since we are assuming it will be ordered by fitness 
+        #(TODO: Return from problem.extract_solutions() since each problem will have it's own criteria for being considered solved)
         return self.pop[-1]
 
 
